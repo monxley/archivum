@@ -168,6 +168,144 @@
   let raf = 0;
   function draw() { if (!raf) raf = requestAnimationFrame(render); }
 
+  /* ---------- режим «Фокус»: один узел и его связи ---------- */
+  const FGROUPS = [
+    ["src", true, "Опирается на"], ["src", false, "Повлияло на"], ["comp", null, "Дополняет"],
+    ["over", null, "Пересекается"], ["anti", true, "Опровергает"], ["anti", false, "Опровергается"],
+  ];
+  let fCenter = null, fSet = null, fMeta = [], fR = 260, fHistory = [];
+  const fVisible = (n) => mode !== "focus" || (fSet && fSet.has(n));
+  function layoutFocus(c) {
+    const groups = FGROUPS.map(([kind, out, title]) => ({
+      title,
+      items: c.adj.filter((a) => a.kind === kind && (out === null || a.out === out)).sort((a, b) => b.n.deg - a.n.deg),
+    })).filter((g) => g.items.length);
+    const total = groups.reduce((s, g) => s + g.items.length, 0);
+    fR = Math.max(230, (total * 30) / (2 * Math.PI));
+    const gap = groups.length > 1 ? 0.18 : 0;
+    const step = total ? (2 * Math.PI - gap * groups.length) / total : 0;
+    let a = -Math.PI / 2 + gap / 2;
+    fSet = new Set([c]); fMeta = [];
+    const target = new Map([[c, [0, 0]]]);
+    for (const g of groups) {
+      const a0 = a;
+      for (const it of g.items) {
+        const m = it.n, ang = a + step / 2;
+        if (!target.has(m)) { target.set(m, [Math.cos(ang) * fR, Math.sin(ang) * fR]); m.fa = ang; m.fk = it.kind; }
+        fSet.add(m); a += step;
+      }
+      fMeta.push({ title: g.title, count: g.items.length, mid: (a0 + a) / 2, span: a - a0 });
+      a += gap;
+    }
+    return target;
+  }
+  function enterFocus(c, opts = {}) {
+    if (!c) c = selected || [...nodes].sort((a, b) => b.deg - a.deg)[0];
+    const fromMode = mode;
+    mode = "focus";
+    syncModeButtons();
+    fCenter = c;
+    if (!opts.fromHistory) { fHistory = fHistory.filter((x) => x !== c); fHistory.push(c); if (fHistory.length > 12) fHistory.shift(); }
+    renderCrumbs();
+    const target = layoutFocus(c);
+    const moving = [...target.keys()];
+    const from = moving.map((n) => [n.x, n.y]);
+    const to = moving.map((n) => target.get(n));
+    selectCard(c);
+    const done = () => fitFocus(fromMode === "focus");
+    if (reduced) { moving.forEach((n, i) => { [n.x, n.y] = to[i]; }); done(); return; }
+    const t0 = performance.now(), dur = 650;
+    const stepFn = (now) => {
+      const p = Math.min(1, (now - t0) / dur), q = easeCubic(p);
+      moving.forEach((n, i) => { n.x = from[i][0] + (to[i][0] - from[i][0]) * q; n.y = from[i][1] + (to[i][1] - from[i][1]) * q; });
+      draw();
+      if (p < 1) requestAnimationFrame(stepFn); else done();
+    };
+    requestAnimationFrame(stepFn);
+    if (!opts.keepCamera) fitFocus(true);
+  }
+  function fitFocus(animate) {
+    if (!W) return;
+    const span = (fR + (W < 640 ? 85 : 190)) * 2;
+    const k = clampK(Math.min(W / span, (H - 90) / span, 2.2));
+    const x = W / 2 + (W > 900 ? Math.min(160, W * 0.1) : 0), y = H / 2 + 34; // справа от карточки
+    if (animate) animateT(x, y, k, 500); else setT(x, y, k);
+  }
+  function renderCrumbs() {
+    const box = $("crumbs");
+    if (mode !== "focus") { box.hidden = true; return; }
+    box.hidden = false;
+    const i = fHistory.indexOf(fCenter);
+    box.innerHTML = (i > 0 ? `<button data-back="1" aria-label="Назад">← Назад</button>` : "") +
+      fHistory.map((n, j) => `${j ? '<span class="sep">›</span>' : ""}<button data-i="${j}" ${n === fCenter ? 'aria-current="true"' : ""}>${esc(n.t)}</button>`).join("");
+  }
+  $("crumbs").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (b.dataset.back) { const i = fHistory.indexOf(fCenter); if (i > 0) enterFocus(fHistory[i - 1], { fromHistory: true }); return; }
+    enterFocus(fHistory[+b.dataset.i], { fromHistory: true });
+  });
+
+  function renderFocus() {
+    const k = T.k;
+    const kStyle = { src: [C.ink, []], comp: [C.mute, []], over: [C.mute, [1.5 / k, 3 / k]], anti: [C.accent, [5 / k, 3 / k]] };
+    // связи между соседями — фоном
+    ctx.lineWidth = 0.8 / k; ctx.globalAlpha = 0.14; ctx.strokeStyle = C.mute; ctx.setLineDash([]);
+    ctx.beginPath();
+    for (const e of edges) {
+      if (e.source === fCenter || e.target === fCenter) continue;
+      if (fSet.has(e.source) && fSet.has(e.target)) { ctx.moveTo(e.source.x, e.source.y); ctx.lineTo(e.target.x, e.target.y); }
+    }
+    ctx.stroke();
+    // связи центра
+    for (const a of fCenter.adj) {
+      const [c, dash] = kStyle[a.kind];
+      ctx.beginPath(); ctx.moveTo(fCenter.x, fCenter.y); ctx.lineTo(a.n.x, a.n.y);
+      ctx.strokeStyle = c; ctx.setLineDash(dash); ctx.lineWidth = (a.n === hover ? 2.4 : 1.3) / k;
+      ctx.globalAlpha = hover && a.n !== hover ? 0.35 : 0.85; ctx.stroke();
+    }
+    ctx.setLineDash([]);
+    // подписи групп
+    ctx.font = `600 ${11 / k}px Oswald, sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillStyle = C.mute; ctx.globalAlpha = 0.95;
+    for (const g of fMeta) {
+      if (g.span < 0.55 && fMeta.length > 1) continue; // узкий сектор — подпись не помещается
+      const r = fR * 0.56;
+      ctx.fillText(`${g.title.toUpperCase()} · ${g.count}`, Math.cos(g.mid) * r, Math.sin(g.mid) * r);
+    }
+    // узлы
+    for (const n of fSet) {
+      const r = n === fCenter ? Math.max(9, rad(n) * 1.6) : rad(n) * 1.15;
+      ctx.globalAlpha = 1; ctx.fillStyle = C.dom[domIndex[n.d]];
+      ctx.beginPath();
+      if (n.s === "debunked" || n.s === "hoax") ctx.rect(n.x - r, n.y - r, r * 2, r * 2); else ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      if (n === fCenter || n === hover) { ctx.strokeStyle = n === fCenter ? C.accent : C.ink; ctx.lineWidth = 2 / k; ctx.beginPath(); ctx.arc(n.x, n.y, r + 4 / k, 0, Math.PI * 2); ctx.stroke(); }
+    }
+    // подписи соседей — по радиусу наружу
+    const fs = Math.min(13, Math.max(10, 12 * k)) / k;
+    ctx.font = `400 ${fs}px "JetBrains Mono", monospace`; ctx.lineJoin = "round";
+    for (const n of fSet) {
+      if (n === fCenter) continue;
+      const flip = Math.cos(n.fa) < 0;
+      ctx.save(); ctx.translate(n.x, n.y); ctx.rotate(flip ? n.fa + Math.PI : n.fa);
+      ctx.textAlign = flip ? "right" : "left";
+      const off = (rad(n) * 1.15 + 6 / k) * (flip ? -1 : 1);
+      const max = W < 640 ? 16 : 34;
+      const label = n.t.length > max ? n.t.slice(0, max - 1) + "…" : n.t;
+      ctx.globalAlpha = hover && n !== hover ? 0.55 : 1;
+      ctx.strokeStyle = C.plate; ctx.lineWidth = 3 / k; ctx.strokeText(label, off, 0);
+      ctx.fillStyle = n === hover ? C.accent : C.ink; ctx.fillText(label, off, 0);
+      ctx.restore();
+    }
+    // центр
+    ctx.globalAlpha = 1; ctx.textAlign = "center";
+    ctx.font = `600 ${Math.max(16, 20 * k) / k}px Oswald, sans-serif`;
+    const cy = fCenter.y - Math.max(9, rad(fCenter) * 1.6) - 14 / k;
+    ctx.strokeStyle = C.plate; ctx.lineWidth = 5 / k; ctx.strokeText(fCenter.t, 0, cy);
+    ctx.fillStyle = C.ink; ctx.fillText(fCenter.t, 0, cy);
+    if (!fCenter.adj.length) { ctx.font = `400 ${12 / k}px "JetBrains Mono", monospace`; ctx.fillStyle = C.mute; ctx.fillText("Связей пока нет", 0, 30 / k); }
+  }
+
   function lit(n) {
     if (!activeDom.has(n.d)) return false;
     if (pathSet) return pathSet.has(n);
@@ -183,6 +321,7 @@
     ctx.save();
     ctx.translate(T.x, T.y); ctx.scale(T.k, T.k);
     const k = T.k;
+    if (mode === "focus" && fCenter) { renderFocus(); ctx.restore(); ctx.globalAlpha = 1; return; }
     const focus = selected || pathSet;
 
     // рёбра: сначала фон, потом выделенные
@@ -305,7 +444,7 @@
     const [wx, wy] = T.invert([px, py]);
     let best = null, bd = Infinity;
     for (const n of nodes) {
-      if (!activeDom.has(n.d)) continue;
+      if (!activeDom.has(n.d) || !fVisible(n)) continue;
       const d = Math.hypot(n.x - wx, n.y - wy);
       const lim = rad(n) + (coarse ? 14 : 6) / T.k;
       if (d < lim && d < bd) { bd = d; best = n; }
@@ -323,16 +462,24 @@
     if (dragged) return;
     const r = canvas.getBoundingClientRect();
     const n = nodeAt(e.clientX - r.left, e.clientY - r.top);
+    if (mode === "focus") { if (!n) return; if (n === fCenter) openDossier(n); else enterFocus(n); return; }
     select(n);
   });
 
   /* ---------- переключение раскладок ---------- */
+  function syncModeButtons() {
+    for (const [id, m] of [["v-focus", "focus"], ["v-net", "net"], ["v-ring", "ring"]]) $(id).setAttribute("aria-pressed", mode === m);
+    $("map").classList.toggle("focus-mode", mode === "focus");
+    try { localStorage.setItem("archivum-mode", mode); } catch (_) {}
+    $("hint").textContent = mode === "focus" ? "клик по соседу — перейти к нему · клик по центру — досье" : (coarse ? "два пальца — двигать и масштабировать" : "клик по карте включает колесо · клик по узлу — выбрать");
+  }
   function setMode(m) {
+    if (m === "focus") { enterFocus(selected || fCenter); return; }
     if (m === mode) return;
     mode = m;
-    $("v-net").setAttribute("aria-pressed", m === "net");
-    $("v-ring").setAttribute("aria-pressed", m === "ring");
-    try { localStorage.setItem("archivum-mode", m); } catch (_) {}
+    syncModeButtons();
+    renderCrumbs();
+    if (selected) selectCard(selected);
     const from = nodes.map((n) => [n.x, n.y]);
     const to = nodes.map((n) => (m === "ring" ? [n.rx, n.ry] : [n.nx, n.ny]));
     if (reduced) { nodes.forEach((n, i) => { [n.x, n.y] = to[i]; }); fit(false); return; }
@@ -345,16 +492,24 @@
     };
     requestAnimationFrame(step);
   }
+  $("v-focus").onclick = () => setMode("focus");
   $("v-net").onclick = () => setMode("net");
   $("v-ring").onclick = () => setMode("ring");
-  $("v-reset").onclick = () => { select(null); clearPath(); activeDom.clear(); domKeys.forEach((d) => activeDom.add(d)); renderDomains(); fit(true); };
+  $("v-reset").onclick = () => { if (mode === "focus") setMode("net"); select(null); clearPath(); activeDom.clear(); domKeys.forEach((d) => activeDom.add(d)); renderDomains(); fit(true); };
 
   /* ---------- выбор узла и карточка ---------- */
   function select(n, opts = {}) {
+    if (mode === "focus") { if (n) enterFocus(n); else setMode("net"); return; }
     selected = n || null;
     if (n) clearPath(true);
+    if (!n) { $("card").hidden = true; draw(); return; }
+    selectCard(n);
+    if (opts.focus) focusNode(n);
+    draw();
+  }
+  function selectCard(n) {
+    selected = n;
     const card = $("card");
-    if (!n) { card.hidden = true; draw(); return; }
     card.hidden = false;
     $("c-dom").innerHTML = `<span class="sw" style="background:${domColor(n.d)}"></span>${esc(DOMS[n.d])}`;
     $("c-st").innerHTML = statusChip(n.s);
@@ -362,9 +517,11 @@
     $("c-title").textContent = n.t;
     $("c-sum").textContent = n.sum;
     $("c-deg").textContent = `${n.deg} связ.`;
-    if (opts.focus) focusNode(n);
+    $("c-focus").hidden = mode === "focus";
+    $("c-clear").textContent = mode === "focus" ? "Вся сеть" : "Снять выбор";
     draw();
   }
+  $("c-focus").onclick = () => selected && enterFocus(selected);
   $("c-open").onclick = () => selected && openDossier(selected);
   $("c-clear").onclick = () => select(null);
 
@@ -489,6 +646,7 @@
   function edgeBetween(a, b) { return edges.find((e) => (e.source === a && e.target === b) || (e.source === b && e.target === a)); }
   const KIND = { src: "источник", comp: "дополняет", over: "пересекается", anti: "опровергает" };
   function showPath(path, box) {
+    if (mode === "focus") setMode("net");
     pathSet = new Set(path);
     pathEdges = new Set();
     for (let i = 1; i < path.length; i++) pathEdges.add(edgeBetween(path[i - 1], path[i]));
@@ -669,7 +827,15 @@
 
   /* ---------- старт ---------- */
   try { if (localStorage.getItem("archivum-mode") === "ring") { mode = "ring"; nodes.forEach((n) => { n.x = n.rx; n.y = n.ry; }); $("v-net").setAttribute("aria-pressed", false); $("v-ring").setAttribute("aria-pressed", true); } } catch (_) {}
-  new ResizeObserver(() => { const first = !W; resize(); if (first) fit(false); }).observe(canvas);
+  let saved = null;
+  try { saved = localStorage.getItem("archivum-mode"); } catch (_) {}
   const start = byId.get(decodeURIComponent(location.hash.slice(1)));
-  if (start) { select(start); openDossier(start); }
+  const wantFocus = saved === "focus" || (!saved && (coarse || innerWidth < 700));
+  new ResizeObserver(() => {
+    const first = !W; resize();
+    if (first) { if (mode === "focus") fitFocus(false); else fit(false); }
+  }).observe(canvas);
+  if (wantFocus) enterFocus(start || byId.get("eye-of-providence"), { keepCamera: true });
+  else syncModeButtons();
+  if (start) { if (mode !== "focus") select(start); openDossier(start); }
 })();

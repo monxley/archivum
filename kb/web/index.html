@@ -82,6 +82,11 @@ button,input,select{font:inherit;color:inherit}
 .chip::before{content:"";width:6px;height:6px;background:currentColor}
 .s-fact{color:var(--st-fact)} .s-disputed{color:var(--st-disputed)} .s-debunked{color:var(--st-debunked)}
 .s-hoax{color:var(--st-hoax)} .s-belief{color:var(--st-belief)} .s-hypothesis{color:var(--st-hypothesis)}
+.crumbs{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px}
+.crumbs button{background:var(--plate);border:1px solid var(--rule);padding:3px 7px;cursor:pointer;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crumbs button:hover{border-color:var(--ink)}
+.crumbs button[aria-current="true"]{border-color:var(--accent);color:var(--accent)}
+.crumbs .sep{color:var(--mute)}
 .hint{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;font-size:10px;color:var(--mute);letter-spacing:.1em;pointer-events:none}
 
 /* instrument panels */
@@ -188,6 +193,8 @@ button,input,select{font:inherit;color:inherit}
   .card{bottom:8px;left:8px;width:calc(100% - 16px)}
   .card p{-webkit-line-clamp:3}
   .hint{display:none}
+  .map.focus-mode .card p{display:none}
+  .map.focus-mode .card{gap:4px;padding:8px 10px}
 }
 </style>
 
@@ -208,24 +215,26 @@ button,input,select{font:inherit;color:inherit}
     <div class="map" id="map">
       <canvas id="graph" aria-label="Граф связей между теориями, текстами и находками"></canvas>
       <div class="tl">
-        <div class="ttl">Карта соединений<span>Перетаскивайте · колесо/щипок — масштаб · клик — досье</span></div>
+        <div class="ttl">Карта соединений<span>Фокус — узел и его связи · Сеть — вся база · Кольцо — по доменам</span></div>
         <div class="ctrls">
           <div class="search">
             <input id="q" type="search" placeholder="Найти узел: Атлантида, MKUltra…" autocomplete="off" aria-label="Поиск по базе">
             <div class="results" id="results" hidden></div>
           </div>
+          <button class="btn" id="v-focus" aria-pressed="false" title="Один узел и все его связи">Фокус</button>
           <button class="btn" id="v-net" aria-pressed="true">Сеть</button>
           <button class="btn" id="v-ring" aria-pressed="false">Кольцо</button>
           <button class="btn" id="z-in" aria-label="Приблизить">+</button>
           <button class="btn" id="z-out" aria-label="Отдалить">−</button>
           <button class="btn" id="v-reset">Сброс</button>
         </div>
+        <div class="crumbs" id="crumbs" hidden></div>
       </div>
       <div class="card" id="card" hidden>
         <div class="row"><span class="lbl" id="c-dom"></span><span id="c-st"></span><span class="lbl num" id="c-era"></span></div>
         <h3 id="c-title"></h3>
         <p id="c-sum"></p>
-        <div class="row"><button class="btn" id="c-open">Открыть досье</button><button class="btn" id="c-clear">Снять выбор</button><span class="lbl num" id="c-deg"></span></div>
+        <div class="row"><button class="btn" id="c-open">Открыть досье</button><button class="btn" id="c-focus">Связи узла</button><button class="btn" id="c-clear">Снять выбор</button><span class="lbl num" id="c-deg"></span></div>
       </div>
       <div class="legend" aria-label="Типы связей">
         <span><i style="border-color:var(--ink)"></i>источник</span>
