@@ -7,174 +7,206 @@
 <body>
 <title>ARCHIVUM</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="База знаний конспирологии, эзотерики, археологии и священных текстов в виде карты связей.">
+<meta name="description" content="Атлас связей между теориями заговора, эзотерикой, мифами, священными текстами и археологическими находками.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&family=Oswald:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: technical research sheet — a hairline-ruled header strip, one big map plate, a grid of instrument panels, then the card catalogue; the Eye crawls a ruler on the right edge. */
+/* Layout: an atlas-app — sticky search bar, a two-pane explorer (map | reading desk) as the first screen,
+   then the index of sections, the "how are they connected" tool, the timeline and the full register.
+   The Eye crawls a ruler on the right edge, following the scroll. */
 :root{
-  --paper:#ebeae4; --plate:#f6f5f0; --ink:#151513; --mute:#6f6e66; --rule:#c9c7bd; --faint:#dcdad2;
-  --accent:#c8321e; --gold:#d6a21c;
-  --st-fact:#2f6b3a; --st-disputed:#a8761a; --st-debunked:#b0301e; --st-hoax:#7c2d6b; --st-belief:#3a5a8c; --st-hypothesis:#4f6f73;
-  --d0:#b0301e; --d1:#7a5c1e; --d2:#8a6a3d; --d3:#3a5a8c; --d4:#6b3f8a; --d5:#2f6b3a; --d6:#1f7a7a; --d7:#55606e; --d8:#a35a1a; --d9:#2b2b2b; --d10:#8a5a2b; --d11:#5f6f2a; --d12:#9a6b10;
-  --f-display:"Oswald","Arial Narrow",Impact,sans-serif;
-  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
-  --rail:44px;
+  --bg:#e7e5df; --surface:#f6f5f1; --ink:#1b1a17; --ink-2:#4d4a44; --mute:#7a766e; --line:#d2cec4; --line-2:#e2dfd7;
+  --accent:#b3261e; --accent-soft:#f3dcd8; --gold:#b98a1c;
+  --f1:#2a78d6; --f2:#eb6834; --f3:#1baf7a; --f4:#eda100; --f5:#e87ba4; --f6:#008300; --f7:#6250d6;
+  --ok:#2e7d3b; --warn:#9a6400; --bad:#b3261e; --hyp:#3f6690; --belief:#6a5a8c;
+  --font-display:"Forum","Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --font-body:"Golos Text","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --rail:40px; --radius:6px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#0e0e0d; --plate:#161614; --ink:#e8e6de; --mute:#8f8d84; --rule:#34332f; --faint:#23221f;
-  --accent:#e2533c; --gold:#e3b23c;
-  --st-fact:#6fb37c; --st-disputed:#d9a441; --st-debunked:#e2604a; --st-hoax:#c27ab0; --st-belief:#7c9ed6; --st-hypothesis:#8fb3b7;
-  --d0:#e2604a; --d1:#cfa35a; --d2:#c9a77a; --d3:#7c9ed6; --d4:#b08ad6; --d5:#6fb37c; --d6:#5cc2c2; --d7:#9aa6b4; --d8:#e09450; --d9:#d8d6ce; --d10:#d49a5c; --d11:#b5c46a; --d12:#e8bf5a;
-  color-scheme:dark }}
+  --bg:#11110f; --surface:#1a1917; --ink:#ece9e2; --ink-2:#c3bfb5; --mute:#8e8a81; --line:#35332e; --line-2:#262521;
+  --accent:#e5533f; --accent-soft:#3a1b17; --gold:#d7a93a;
+  --f1:#3987e5; --f2:#d95926; --f3:#199e70; --f4:#c98500; --f5:#d55181; --f6:#2f9a2f; --f7:#9085e9;
+  --ok:#6cbf78; --warn:#e0a63a; --bad:#ec6a58; --hyp:#86aee0; --belief:#b4a3dc;
+  color-scheme:dark}}
 :root[data-theme="dark"]{
-  --paper:#0e0e0d; --plate:#161614; --ink:#e8e6de; --mute:#8f8d84; --rule:#34332f; --faint:#23221f;
-  --accent:#e2533c; --gold:#e3b23c;
-  --st-fact:#6fb37c; --st-disputed:#d9a441; --st-debunked:#e2604a; --st-hoax:#c27ab0; --st-belief:#7c9ed6; --st-hypothesis:#8fb3b7;
-  --d0:#e2604a; --d1:#cfa35a; --d2:#c9a77a; --d3:#7c9ed6; --d4:#b08ad6; --d5:#6fb37c; --d6:#5cc2c2; --d7:#9aa6b4; --d8:#e09450; --d9:#d8d6ce; --d10:#d49a5c; --d11:#b5c46a; --d12:#e8bf5a;
-  color-scheme:dark }
+  --bg:#11110f; --surface:#1a1917; --ink:#ece9e2; --ink-2:#c3bfb5; --mute:#8e8a81; --line:#35332e; --line-2:#262521;
+  --accent:#e5533f; --accent-soft:#3a1b17; --gold:#d7a93a;
+  --f1:#3987e5; --f2:#d95926; --f3:#199e70; --f4:#c98500; --f5:#d55181; --f6:#2f9a2f; --f7:#9085e9;
+  --ok:#6cbf78; --warn:#e0a63a; --bad:#ec6a58; --hyp:#86aee0; --belief:#b4a3dc;
+  color-scheme:dark}
+
 *{box-sizing:border-box}
-[hidden]{display:none!important}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
-body{background:var(--paper);color:var(--ink);font:400 13px/1.55 var(--f-mono);margin:0;
-  padding-left:max(16px, env(safe-area-inset-left, 0px));
-  padding-right:max(calc(16px + var(--rail)), calc(env(safe-area-inset-right, 0px) + var(--rail)));
-  padding-block:16px 40px}
-.wrap{max-width:1320px;margin:0 auto;display:grid;gap:14px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--font-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
 a{color:inherit}
 button,input,select{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+[hidden]{display:none!important}
+.wrap{max-width:1360px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(calc(16px + var(--rail)),calc(env(safe-area-inset-right,0px) + var(--rail)))}
+.eyebrow{font:500 11px/1.3 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
 .num{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margin:0;letter-spacing:.01em}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:var(--radius);padding:7px 12px;font-size:13px;cursor:pointer;line-height:1.2;transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.btn.primary:hover{background:var(--accent);border-color:var(--accent)}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12.5px;background:var(--surface);cursor:pointer;white-space:nowrap}
+.chip:hover{border-color:var(--ink)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+.status{display:inline-flex;align-items:center;gap:5px;font:500 11px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;padding:4px 7px;border-radius:4px;border:1px solid currentColor;white-space:nowrap}
+.st-fact{color:var(--ok)} .st-disputed{color:var(--warn)} .st-debunked{color:var(--bad)} .st-hoax{color:var(--bad)}
+.st-belief{color:var(--belief)} .st-hypothesis{color:var(--hyp)}
+.st-hoax{border-style:dashed}
 
-/* header strip */
-.strip{display:grid;grid-template-columns:auto 1fr auto;gap:0;border:1px solid var(--ink);background:var(--plate)}
-.strip>div{padding:8px 12px;border-right:1px solid var(--rule);min-width:0}
-.strip>div:last-child{border-right:0}
-.brand{font:600 22px/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase}
-.brand small{display:block;font:400 9px/1.6 var(--f-mono);letter-spacing:.18em;color:var(--mute);margin-top:3px}
-.meta{display:flex;flex-wrap:wrap;gap:4px 22px;align-items:center}
-.meta b{font-weight:800;font-size:14px}
-.stamp{text-align:right;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
-.stamp b{color:var(--accent);font-weight:600}
+/* ---------- header ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--surface) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:20px;align-items:center;padding-block:10px}
+.brand{display:flex;align-items:baseline;gap:12px;text-decoration:none}
+.brand b{font:400 26px/1 var(--font-display);letter-spacing:.18em}
+.brand span{font-size:12px;color:var(--mute)}
+.search{position:relative;max-width:560px;width:100%;justify-self:center}
+.search input{width:100%;height:40px;border:1px solid var(--line);border-radius:999px;background:var(--bg);padding:0 16px 0 40px;font-size:14.5px}
+.search input:focus{outline:none;border-color:var(--ink);background:var(--surface)}
+.search svg{position:absolute;left:14px;top:12px;width:16px;height:16px;color:var(--mute)}
+.search kbd{position:absolute;right:12px;top:10px;font:500 11px var(--font-mono);color:var(--mute);border:1px solid var(--line);border-radius:4px;padding:2px 6px}
+.results{position:absolute;left:0;right:0;top:46px;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 18px 40px -18px rgb(0 0 0 / .35);overflow:hidden;max-height:min(60vh,440px);overflow-y:auto}
+.results button{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line-2)}
+.results button:last-child{border-bottom:0}
+.results button:hover,.results button.on{background:var(--bg)}
+.results .t{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.results .d{font-size:12px;color:var(--mute);white-space:nowrap}
+.results .empty{padding:14px;color:var(--mute);font-size:13px}
+.top-meta{display:flex;align-items:center;gap:14px;font-size:12.5px;color:var(--mute)}
+.top-meta b{color:var(--ink);font-weight:600}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;display:grid;place-items:center}
+.icon-btn:hover{border-color:var(--ink)}
+.icon-btn svg{width:16px;height:16px}
 
-/* map plate */
-.plate{position:relative;border:1px solid var(--ink);background:var(--plate);overflow:hidden}
-.map{position:relative;height:clamp(440px,72vh,820px)}
-.map canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
-.map canvas.drag{cursor:grabbing}
-.tl{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;pointer-events:none;flex-wrap:wrap}
-.tl>*{pointer-events:auto}
-.ttl{font:600 15px/1.1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;background:var(--plate);padding:4px 8px;border:1px solid var(--rule)}
-.ttl span{display:block;font:400 9px/1.5 var(--f-mono);letter-spacing:.14em;color:var(--mute)}
-.ctrls{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.btn{background:var(--plate);border:1px solid var(--ink);padding:5px 9px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
-.btn:hover{background:var(--ink);color:var(--plate)}
-.btn[aria-pressed="true"]{background:var(--ink);color:var(--plate)}
-.search{position:relative}
-.search input{width:min(260px,62vw);background:var(--plate);border:1px solid var(--ink);padding:5px 9px;font-size:12px}
-.results{position:absolute;top:100%;left:0;right:0;z-index:5;background:var(--plate);border:1px solid var(--ink);border-top:0;max-height:300px;overflow:auto}
-.results button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--faint);padding:6px 9px;cursor:pointer}
-.results button:hover,.results button.on{background:var(--faint)}
-.results em{font-style:normal;color:var(--mute);font-size:10px;display:block}
-.card{position:absolute;left:12px;bottom:12px;width:min(380px,calc(100% - 24px));background:var(--plate);border:1px solid var(--ink);padding:10px 12px;display:grid;gap:6px}
-.card h3{margin:0;font:600 20px/1.1 var(--f-display);letter-spacing:.02em;text-wrap:balance}
-.card p{margin:0;font-size:12px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.card .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.legend{position:absolute;right:12px;bottom:12px;background:var(--plate);border:1px solid var(--rule);padding:6px 9px;font-size:10px;display:grid;gap:3px}
-.legend i{display:inline-block;width:18px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px}
-.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid currentColor;padding:1px 6px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
-.chip::before{content:"";width:6px;height:6px;background:currentColor}
-.s-fact{color:var(--st-fact)} .s-disputed{color:var(--st-disputed)} .s-debunked{color:var(--st-debunked)}
-.s-hoax{color:var(--st-hoax)} .s-belief{color:var(--st-belief)} .s-hypothesis{color:var(--st-hypothesis)}
-.crumbs{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px}
-.crumbs button{background:var(--plate);border:1px solid var(--rule);padding:3px 7px;cursor:pointer;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crumbs button:hover{border-color:var(--ink)}
+/* ---------- intro ---------- */
+.intro{padding-block:36px 22px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;align-items:end}
+.intro h1{font-size:clamp(34px,4.6vw,60px);line-height:1.02}
+.intro h1 em{font-style:normal;color:var(--accent)}
+.intro p{margin:12px 0 0;color:var(--ink-2);max-width:56ch;font-size:16px}
+.starts{display:grid;gap:10px}
+.start-row{display:flex;flex-wrap:wrap;gap:8px}
+
+/* ---------- explorer ---------- */
+.explorer{display:grid;grid-template-columns:minmax(0,1fr) 420px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface);height:clamp(560px,calc(100vh - 150px),880px)}
+.stage{position:relative;min-width:0;border-right:1px solid var(--line);background:
+  radial-gradient(circle at 1px 1px,var(--line-2) 1px,transparent 1.2px) 0 0/22px 22px,var(--surface)}
+.stage canvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+.stage canvas.drag{cursor:grabbing}
+.stage-top{position:absolute;inset:12px 12px auto 12px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between;pointer-events:none;flex-wrap:wrap}
+.stage-top>*{pointer-events:auto}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;background:var(--surface);padding:3px}
+.seg button{border:0;background:none;border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.zoom{display:inline-flex;gap:6px}
+.zoom .icon-btn{width:32px;height:32px;font-size:16px;line-height:1}
+.crumbs{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:12.5px}
+.crumbs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;cursor:pointer;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
 .crumbs button[aria-current="true"]{border-color:var(--accent);color:var(--accent)}
 .crumbs .sep{color:var(--mute)}
-.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;font-size:10px;color:var(--mute);letter-spacing:.1em;pointer-events:none}
+.legend{position:absolute;left:12px;bottom:12px;right:12px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.legend button{pointer-events:auto;font-size:12px;padding:3px 9px}
+.legend button[aria-pressed="false"]{opacity:.4}
+.legend .note{pointer-events:auto;align-self:center;font:500 10.5px var(--font-mono);color:var(--mute);letter-spacing:.06em;margin-left:auto}
 
-/* instrument panels */
-.panels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.pn{border:1px solid var(--ink);background:var(--plate);padding:10px 12px;display:grid;gap:8px;align-content:start;min-width:0}
-.pn.w2{grid-column:span 2}
-.pn header{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--rule);padding-bottom:6px}
-.pn header b{font:600 13px/1.2 var(--f-display);letter-spacing:.1em;text-transform:uppercase}
-.bars{display:grid;gap:4px}
-.bar{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:8px;align-items:center;background:none;border:0;padding:0;text-align:left;cursor:pointer}
-.bar span{position:relative;display:block;font-size:11px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bar span i{position:absolute;inset:0 auto 0 0;background:var(--faint);z-index:0}
-.bar span em{position:relative;font-style:normal}
-.bar b{font-weight:600;text-align:right;font-size:11px}
-.bar[aria-pressed="false"]{opacity:.35}
-.sw{display:inline-block;width:8px;height:8px;margin-right:6px;vertical-align:middle}
-.hubs{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:h}
-.hubs button{width:100%;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;background:none;border:0;padding:3px 0;border-bottom:1px dotted var(--rule);cursor:pointer;text-align:left;font-size:11px}
-.hubs button:hover{color:var(--accent)}
-.hubs button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.timeline svg{width:100%;height:auto;display:block}
-.path-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:6px}
-.path-form input{background:var(--paper);border:1px solid var(--ink);padding:5px 8px;font-size:12px;min-width:0}
-.chain{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px;min-height:28px}
-.chain button{background:var(--paper);border:1px solid var(--ink);padding:3px 7px;cursor:pointer}
-.chain button:hover{background:var(--ink);color:var(--plate)}
-.chain .via{color:var(--mute);font-size:9px;letter-spacing:.1em;text-transform:uppercase}
-.investigator{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;align-items:center}
-.investigator svg{width:72px;height:auto;display:block}
-.walk{font-size:11px;display:grid;gap:2px;max-height:150px;overflow:auto}
-.walk button{background:none;border:0;padding:0;text-align:left;cursor:pointer;font-size:11px}
-.walk button:hover{color:var(--accent)}
+.desk{min-width:0;overflow-y:auto;display:flex;flex-direction:column}
+.desk-empty{padding:28px;display:grid;gap:14px;align-content:start}
+.desk-empty h2{font-size:28px}
+.desk-empty p{margin:0;color:var(--ink-2)}
+.entry{padding:24px 26px 28px;display:grid;gap:14px;align-content:start}
+.entry .meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.entry .dom{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);cursor:pointer;background:none;border:0;padding:0}
+.entry h2{font-size:clamp(30px,3vw,38px);line-height:1.05}
+.entry .en{font:400 13px var(--font-mono);color:var(--mute);margin-top:-6px}
+.entry .sum{font-size:16px;line-height:1.65;margin:0;max-width:60ch}
+.facts{display:grid;grid-template-columns:96px minmax(0,1fr);gap:6px 12px;margin:0;font-size:13.5px;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);padding-block:12px}
+.facts dt{color:var(--mute);font:500 11px/1.9 var(--font-mono);letter-spacing:.08em;text-transform:uppercase}
+.facts dd{margin:0;min-width:0}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font-size:12px;color:var(--ink-2);background:var(--bg);border-radius:4px;padding:2px 8px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.links{display:grid;gap:16px}
+.links h3{font:500 11px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin:0 0 6px;display:flex;justify-content:space-between}
+.links ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line-2)}
+.links li button{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line-2);padding:8px 2px;cursor:pointer;font-size:14px}
+.links li button:hover{color:var(--accent)}
+.links li button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.links li button em{font-style:normal;font-size:11.5px;color:var(--mute)}
 
-/* catalogue */
-.cat-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:8px}
-.cat-head h2{margin:0;font:600 30px/1 var(--f-display);letter-spacing:.04em;text-transform:uppercase}
-.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.filters input{background:var(--plate);border:1px solid var(--ink);padding:5px 9px;width:min(260px,100%)}
-.filters select{background:var(--plate);border:1px solid var(--ink);padding:5px 6px;font-size:11px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.entry{border:1px solid var(--rule);background:var(--plate);padding:9px 11px;display:grid;gap:5px;text-align:left;cursor:pointer;align-content:start;position:relative}
-.entry:hover{border-color:var(--ink)}
-.entry .code{display:flex;justify-content:space-between;gap:6px;font-size:9px;letter-spacing:.12em;color:var(--mute);text-transform:uppercase}
-.entry h4{margin:0;font:600 16px/1.15 var(--f-display);letter-spacing:.02em;text-wrap:balance}
-.entry p{margin:0;font-size:11px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.entry .dom{position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px}
+/* ---------- sections ---------- */
+.section{padding-block:56px 8px;display:grid;gap:22px}
+.section-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:12px 24px}
+.section-head h2{font-size:clamp(28px,3.2vw,42px);line-height:1.05}
+.section-head p{margin:6px 0 0;color:var(--ink-2);max-width:60ch}
+.domains{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.domain{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:10px;align-content:start}
+.domain header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.domain h3{font-size:22px;line-height:1.1;display:flex;align-items:center;gap:9px}
+.domain .count{font:500 12px var(--font-mono);color:var(--mute)}
+.domain ul{list-style:none;margin:0;padding:0;display:grid;gap:2px;min-width:0}
+.domain li{min-width:0}
+.domain li button{background:none;border:0;padding:3px 0;text-align:left;cursor:pointer;font-size:14px;color:var(--ink-2);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.domain li button:hover{color:var(--accent)}
+.domain .all{justify-self:start;font-size:12.5px;background:none;border:0;padding:0;color:var(--mute);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+.pathbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;display:grid;gap:18px}
+.path-form{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto;gap:10px;align-items:center}
+.path-form input{height:44px;border:1px solid var(--line);border-radius:var(--radius);background:var(--bg);padding:0 14px;font-size:15px;min-width:0}
+.path-form .arrow{color:var(--mute);font-size:18px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px;min-height:40px}
+.chain .step{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:6px 12px;background:var(--bg);cursor:pointer;font-size:14px}
+.chain .step:hover{border-color:var(--ink)}
+.chain .via{font:500 10.5px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.chain .hint{color:var(--mute);font-size:14px}
+.examples{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--mute)}
+
+.stats{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:grid;gap:12px;min-width:0;align-content:start}
+.panel h3{font-size:22px}
+.panel .sub{font-size:13px;color:var(--mute);margin:-6px 0 0}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12.5px;padding:7px 10px;border-radius:6px;white-space:nowrap;transform:translate(-50%,-110%);z-index:5}
+.statbar{display:flex;height:14px;border-radius:4px;overflow:hidden;gap:2px;background:var(--surface)}
+.statbar i{display:block;height:100%}
+.statlist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.statlist li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:14px}
+.statlist button{all:unset;cursor:pointer;display:contents}
+.statlist b{font-weight:600}
+
+.register-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.register-tools input,.register-tools select{height:38px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:0 12px;font-size:14px}
+.register-tools input{flex:1 1 220px;min-width:0}
+.register{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.row{display:grid;grid-template-columns:10px minmax(0,2.2fr) minmax(0,1.2fr) minmax(0,1fr) 128px;gap:14px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line-2);cursor:pointer;text-align:left;width:100%;background:none;border-left:0;border-right:0;border-top:0;font-size:14px}
+.row:hover{background:var(--bg)}
+.row .t{font-weight:500;min-width:0}
+.row .t small{display:block;font-weight:400;color:var(--mute);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .c{color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row-head{cursor:default;font:500 11px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);background:var(--bg)}
+.row-head:hover{background:var(--bg)}
 .more{justify-self:center}
-.empty{padding:30px;text-align:center;color:var(--mute);border:1px dashed var(--rule)}
+.empty-state{padding:28px;text-align:center;color:var(--mute)}
 
-/* dossier drawer */
-.dossier{position:fixed;top:0;right:0;bottom:0;width:min(460px,100vw);background:var(--plate);border-left:1px solid var(--ink);z-index:40;
-  padding:calc(14px + env(safe-area-inset-top,0px)) calc(18px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) 18px;
-  overflow:auto;transform:translateX(100%);transition:transform .25s ease;display:grid;gap:12px;align-content:start}
-.dossier.open{transform:none}
-@media (prefers-reduced-motion: reduce){.dossier{transition:none}}
-.dossier h2{margin:0;font:600 30px/1.05 var(--f-display);text-wrap:balance}
-.dossier .en{color:var(--mute);font-size:11px}
-.dossier .sum{font-size:13px;line-height:1.65;max-width:62ch}
-.dossier dl{display:grid;grid-template-columns:90px minmax(0,1fr);gap:4px 10px;margin:0;font-size:11px}
-.dossier dt{color:var(--mute);letter-spacing:.1em;text-transform:uppercase;font-size:9px;padding-top:2px}
-.dossier dd{margin:0}
-.tags{display:flex;flex-wrap:wrap;gap:4px}
-.tags span{font-size:10px;border:1px solid var(--rule);padding:1px 6px}
-.links h5{margin:8px 0 4px;font:600 11px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase}
-.links ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
-.links button{width:100%;background:none;border:0;border-bottom:1px dotted var(--rule);padding:4px 0;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px}
-.links button:hover{color:var(--accent)}
-.links button em{font-style:normal;font-size:10px;color:var(--mute);white-space:nowrap}
-.dossier .x{justify-self:end}
-.scrim{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:39}
+.foot{padding-block:56px 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;font-size:13.5px;color:var(--ink-2);border-top:1px solid var(--line);margin-top:56px}
+.foot h3{font-size:20px;color:var(--ink);margin-bottom:6px}
+.foot p{margin:0}
+.foot dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;margin:0}
+.foot dd{margin:0}
 
-/* footer */
-.foot{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;border-top:1px solid var(--ink);padding-top:12px;font-size:11px;color:var(--mute)}
-.foot p{margin:0;max-width:62ch}
-
-/* the Eye on its ruler */
-.rail{position:fixed;top:0;bottom:0;right:0;width:calc(var(--rail) + env(safe-area-inset-right,0px));padding-right:env(safe-area-inset-right,0px);z-index:30;pointer-events:none;
-  border-left:1px solid var(--rule);background:repeating-linear-gradient(to bottom,transparent 0 23px,var(--rule) 23px 24px) right 0 top 0/10px 100% no-repeat}
-.rail .line{position:absolute;top:0;bottom:0;left:50%;border-left:1px dashed var(--rule)}
-.rail .pct{position:absolute;left:3px;font-size:9px;letter-spacing:.08em;color:var(--mute);writing-mode:vertical-rl;transform:rotate(180deg)}
-.eye{position:absolute;left:50%;top:0;width:60px;margin-left:-30px;pointer-events:auto;cursor:pointer;will-change:transform;background:none;border:0;padding:0}
+/* ---------- the Eye ---------- */
+.rail{position:fixed;top:0;bottom:0;right:0;width:calc(var(--rail) + env(safe-area-inset-right,0px));padding-right:env(safe-area-inset-right,0px);z-index:40;pointer-events:none;border-left:1px solid var(--line);
+  background:repeating-linear-gradient(to bottom,transparent 0 19px,var(--line) 19px 20px) right 0 top 0/8px 100% no-repeat,var(--bg)}
+.rail .pct{position:absolute;left:4px;font:500 9px var(--font-mono);letter-spacing:.08em;color:var(--mute);writing-mode:vertical-rl;transform:rotate(180deg)}
+.eye{position:absolute;left:50%;top:0;width:54px;margin-left:-27px;pointer-events:auto;cursor:pointer;background:none;border:0;padding:0;will-change:transform}
 .eye svg{display:block;width:100%;height:auto;overflow:visible}
 .eye .body{transition:transform .35s cubic-bezier(.5,1.6,.5,1);transform-box:fill-box;transform-origin:50% 50%}
 .eye.down .body{transform:rotate(180deg)}
@@ -185,148 +217,166 @@ button,input,select{font:inherit;color:inherit}
 @keyframes legR{from{transform:rotate(14deg)}to{transform:rotate(-12deg)}}
 @media (prefers-reduced-motion: reduce){.eye.walk .legL,.eye.walk .legR{animation:none}}
 
-@media (max-width:1000px){.panels{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:640px){
-  :root{--rail:30px}
-  .strip{grid-template-columns:1fr}
-  .strip>div{border-right:0;border-bottom:1px solid var(--rule)}
-  .stamp{text-align:left}
-  .panels{grid-template-columns:minmax(0,1fr)}
-  .pn.w2{grid-column:auto}
+/* ---------- responsive ---------- */
+@media (max-width:1100px){
+  .explorer{grid-template-columns:minmax(0,1fr);height:auto}
+  .stage{height:min(70vh,620px);border-right:0;border-bottom:1px solid var(--line)}
+  .desk{overflow:visible}
+  .stats{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:760px){
+  :root{--rail:26px}
+  .top .wrap{grid-template-columns:auto auto;gap:10px}
+  .search{grid-column:1 / -1;grid-row:2;max-width:none}
+  .top-meta .counts{display:none}
+  .brand span{display:none}
+  .intro{grid-template-columns:minmax(0,1fr);padding-block:24px 16px;gap:18px}
   .path-form{grid-template-columns:minmax(0,1fr)}
-  .legend{display:none}
-  .eye{width:40px;margin-left:-20px}
-  .map{height:clamp(420px,78vh,700px)}
-  .card{bottom:8px;left:8px;width:calc(100% - 16px)}
-  .card p{-webkit-line-clamp:3}
-  .hint{display:none}
-  .map.focus-mode .card p{display:none}
-  .map.focus-mode .card{gap:4px;padding:8px 10px}
+  .path-form .arrow{display:none}
+  .row{grid-template-columns:10px minmax(0,1fr) auto;padding:12px 14px}
+  .row .c.hide-sm{display:none}
+  .row-head{display:none}
+  .entry{padding:20px 18px 24px}
+  .eye{width:36px;margin-left:-18px}
+  .legend .note{display:none}
+  .search kbd{display:none}
 }
 </style>
 
-<div class="wrap">
-  <header class="strip">
-    <div class="brand">ARCHIVUM<small>Исследовательский движок · все теории мира</small></div>
-    <div class="meta">
-      <span class="lbl">Узлов <b class="num" id="m-nodes">—</b></span>
-      <span class="lbl">Связей <b class="num" id="m-edges">—</b></span>
-      <span class="lbl">Доменов <b class="num" id="m-domains">—</b></span>
-      <span class="lbl">Доказано <b class="num" id="m-fact">—</b></span>
-      <span class="lbl">Опровергнуто <b class="num" id="m-debunked">—</b></span>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="ARCHIVUM — в начало"><b>ARCHIVUM</b><span>атлас тайного знания</span></a>
+    <div class="search" role="search">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5"/></svg>
+      <input id="q" type="search" placeholder="Найти: Атлантида, Баал, MKUltra, Шаданакар…" autocomplete="off" aria-label="Поиск по атласу" aria-controls="results">
+      <kbd>/</kbd>
+      <div class="results" id="results" role="listbox" hidden></div>
     </div>
-    <div class="stamp">Только чтение · <b>решение за вами</b><br><span id="m-date"></span></div>
-  </header>
+    <div class="top-meta">
+      <span class="counts"><b class="num" id="m-nodes">—</b> идей · <b class="num" id="m-edges">—</b> связей</span>
+      <button class="icon-btn" id="theme" aria-label="Сменить тему" title="Сменить тему">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
 
-  <section class="plate" aria-label="Карта соединений">
-    <div class="map" id="map">
-      <canvas id="graph" aria-label="Граф связей между теориями, текстами и находками"></canvas>
-      <div class="tl">
-        <div class="ttl">Карта соединений<span>Фокус — узел и его связи · Сеть — вся база · Кольцо — по доменам</span></div>
-        <div class="ctrls">
-          <div class="search">
-            <input id="q" type="search" placeholder="Найти узел: Атлантида, MKUltra…" autocomplete="off" aria-label="Поиск по базе">
-            <div class="results" id="results" hidden></div>
+<main id="top">
+  <div class="wrap">
+    <section class="intro" aria-label="О проекте">
+      <div>
+        <div class="eyebrow">Атлас · <span id="m-date"></span></div>
+        <h1>Во что верили, что скрывали и что <em>нашли</em></h1>
+        <p>Теории заговора, эзотерика, мифы, священные тексты и находки археологов в одной карте связей. У каждой записи есть статус по научному консенсусу и, где возможно, первоисточник.</p>
+      </div>
+      <div class="starts">
+        <div class="eyebrow">С чего начать</div>
+        <div class="start-row" id="starts"></div>
+        <div class="start-row"><button class="btn" id="random">Случайная идея</button><a class="btn" href="#paths">Как связаны две идеи?</a></div>
+      </div>
+    </section>
+
+    <section class="explorer" id="explorer" aria-label="Карта и досье">
+      <div class="stage" id="stage">
+        <canvas id="graph" aria-label="Карта связей. Выберите узел, чтобы прочитать досье справа."></canvas>
+        <div class="stage-top">
+          <div class="seg" role="group" aria-label="Вид карты">
+            <button id="v-focus" aria-pressed="true" title="Одна идея и все её связи">Фокус</button>
+            <button id="v-net" aria-pressed="false" title="Вся база кластерами по разделам">Сеть</button>
+            <button id="v-ring" aria-pressed="false" title="Все узлы по кругу, связи — хордами">Кольцо</button>
           </div>
-          <button class="btn" id="v-focus" aria-pressed="false" title="Один узел и все его связи">Фокус</button>
-          <button class="btn" id="v-net" aria-pressed="true">Сеть</button>
-          <button class="btn" id="v-ring" aria-pressed="false">Кольцо</button>
-          <button class="btn" id="z-in" aria-label="Приблизить">+</button>
-          <button class="btn" id="z-out" aria-label="Отдалить">−</button>
-          <button class="btn" id="v-reset">Сброс</button>
+          <div class="zoom">
+            <button class="icon-btn" id="z-in" aria-label="Приблизить">+</button>
+            <button class="icon-btn" id="z-out" aria-label="Отдалить">−</button>
+            <button class="icon-btn" id="z-fit" aria-label="Показать всё" title="Показать всё"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg></button>
+          </div>
+          <nav class="crumbs" id="crumbs" aria-label="Пройденный путь" hidden></nav>
         </div>
-        <div class="crumbs" id="crumbs" hidden></div>
+        <div class="legend" id="legend" aria-label="Семейства разделов"></div>
       </div>
-      <div class="card" id="card" hidden>
-        <div class="row"><span class="lbl" id="c-dom"></span><span id="c-st"></span><span class="lbl num" id="c-era"></span></div>
-        <h3 id="c-title"></h3>
-        <p id="c-sum"></p>
-        <div class="row"><button class="btn" id="c-open">Открыть досье</button><button class="btn" id="c-focus">Связи узла</button><button class="btn" id="c-clear">Снять выбор</button><span class="lbl num" id="c-deg"></span></div>
+      <aside class="desk" id="desk" aria-live="polite"></aside>
+    </section>
+
+    <section class="section" id="sections" aria-labelledby="h-sections">
+      <div class="section-head">
+        <div><div class="eyebrow">Оглавление</div><h2 id="h-sections">Разделы атласа</h2><p>Тринадцать разделов. Под названием — самые связанные записи; «Все записи раздела» откроет реестр с фильтром.</p></div>
       </div>
-      <div class="legend" aria-label="Типы связей">
-        <span><i style="border-color:var(--ink)"></i>источник</span>
-        <span><i style="border-color:var(--mute);border-top-style:solid"></i>дополняет</span>
-        <span><i style="border-color:var(--mute);border-top-style:dotted"></i>пересекается</span>
-        <span><i style="border-color:var(--accent);border-top-style:dashed"></i>опровергает</span>
+      <div class="domains" id="domains"></div>
+    </section>
+
+    <section class="section" id="paths" aria-labelledby="h-paths">
+      <div class="section-head">
+        <div><div class="eyebrow">Инструмент</div><h2 id="h-paths">Как связаны две идеи?</h2><p>Атлас найдёт кратчайшую цепочку связей между любыми двумя записями и покажет, через что они соприкасаются.</p></div>
       </div>
-      <div class="hint" id="hint">наведи на узел · клик открывает досье</div>
+      <div class="pathbox">
+        <form class="path-form" id="path-form">
+          <input id="pa" list="all-titles" placeholder="Откуда: Масонство" aria-label="Первая идея">
+          <span class="arrow" aria-hidden="true">→</span>
+          <input id="pb" list="all-titles" placeholder="Куда: Нибиру" aria-label="Вторая идея">
+          <button class="btn primary" type="submit">Найти цепочку</button>
+        </form>
+        <datalist id="all-titles"></datalist>
+        <div class="chain" id="chain"><span class="hint">Введите две идеи или попробуйте пример ниже.</span></div>
+        <div class="examples" id="examples">Примеры:</div>
+      </div>
+    </section>
+
+    <section class="section" id="stats" aria-labelledby="h-stats">
+      <div class="section-head"><div><div class="eyebrow">Обзор</div><h2 id="h-stats">Что в атласе</h2></div></div>
+      <div class="stats">
+        <article class="panel">
+          <h3>По эпохам</h3>
+          <p class="sub">Сколько записей относится к каждой эпохе. Красная часть столбца — опровергнутое и подделки. Клик по столбцу откроет записи эпохи.</p>
+          <div class="chart" id="timeline"></div>
+        </article>
+        <article class="panel">
+          <h3>Статусы</h3>
+          <p class="sub">Оценка по научному и историческому консенсусу.</p>
+          <div class="statbar" id="statbar" aria-hidden="true"></div>
+          <ul class="statlist" id="statlist"></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="register" aria-labelledby="h-register">
+      <div class="section-head">
+        <div><div class="eyebrow">Реестр</div><h2 id="h-register">Все записи</h2></div>
+        <span class="eyebrow num" id="rcount"></span>
+      </div>
+      <div class="register-tools">
+        <input id="rq" type="search" placeholder="Фильтр по названию, тегам, описанию" aria-label="Фильтр реестра">
+        <select id="rd" aria-label="Раздел"><option value="">Все разделы</option></select>
+        <select id="rs" aria-label="Статус"><option value="">Все статусы</option></select>
+        <select id="re" aria-label="Эпоха"><option value="">Все эпохи</option></select>
+        <select id="ro" aria-label="Сортировка"><option value="deg">Сначала связанные</option><option value="alpha">По алфавиту</option><option value="era">По времени</option></select>
+      </div>
+      <div class="register" id="rlist" role="list"></div>
+      <button class="btn more" id="rmore" hidden>Показать ещё</button>
+    </section>
+  </div>
+
+  <footer class="wrap">
+    <div class="foot">
+      <div><h3>Статусы</h3>
+        <dl>
+          <dt><span class="status st-fact">доказано</span></dt><dd>подтверждено документами или раскопками</dd>
+          <dt><span class="status st-disputed">спорно</span></dt><dd>консенсуса нет</dd>
+          <dt><span class="status st-debunked">опровергнуто</span></dt><dd>проверено и не подтвердилось</dd>
+          <dt><span class="status st-hoax">подделка</span></dt><dd>доказанная фальсификация</dd>
+          <dt><span class="status st-belief">вера</span></dt><dd>религиозная или мифологическая традиция</dd>
+          <dt><span class="status st-hypothesis">гипотеза</span></dt><dd>научное или философское предположение</dd>
+        </dl>
+      </div>
+      <div><h3>Связи</h3><p>«Опирается на» и «Повлияло на» — одна идея выросла из другой. «Дополняет» — развивает или продолжает. «Пересекается» — общий мотив, символ или персонаж. «Опровергает» — свидетельство против теории.</p></div>
+      <div><h3>Об атласе</h3><p>Атлас пополняется партиями. Нашли ошибку или хотите предложить тему — напишите в <a href="https://github.com/monxley/archivum/issues">Issues на GitHub</a>.</p></div>
     </div>
-  </section>
-
-  <section class="panels" aria-label="Приборная панель">
-    <article class="pn">
-      <header><b>Домены</b><span class="lbl">фильтр карты</span></header>
-      <div class="bars" id="p-domains"></div>
-    </article>
-    <article class="pn">
-      <header><b>Статус</b><span class="lbl">научный консенсус</span></header>
-      <div class="bars" id="p-status"></div>
-    </article>
-    <article class="pn w2 timeline">
-      <header><b>Хронология</b><span class="lbl">узлов по эпохам · клик фильтрует каталог</span></header>
-      <div id="p-time"></div>
-    </article>
-    <article class="pn">
-      <header><b>Узлы-хабы</b><span class="lbl">больше всего связей</span></header>
-      <ol class="hubs" id="p-hubs"></ol>
-    </article>
-    <article class="pn w2">
-      <header><b>Цепочка</b><span class="lbl">кратчайший путь между идеями</span></header>
-      <form class="path-form" id="path-form">
-        <input id="pa" list="all-ids" placeholder="Откуда: Масонство" aria-label="Начальный узел">
-        <input id="pb" list="all-ids" placeholder="Куда: Нибиру" aria-label="Конечный узел">
-        <button class="btn" type="submit">Связать</button>
-      </form>
-      <datalist id="all-ids"></datalist>
-      <div class="chain" id="chain"><span class="lbl">Введите два узла — найдём, через что они соприкасаются.</span></div>
-    </article>
-    <article class="pn">
-      <header><b>Око · следователь</b><span class="lbl">случайная прогулка</span></header>
-      <div class="investigator">
-        <div id="inv-eye" aria-hidden="true"></div>
-        <div style="display:grid;gap:6px">
-          <button class="btn" id="walk-go">Идти по следу</button>
-          <span class="lbl">7 шагов по связям от случайного узла</span>
-        </div>
-      </div>
-      <div class="walk" id="walk"></div>
-    </article>
-  </section>
-
-  <section id="catalog" style="display:grid;gap:12px" aria-label="Каталог">
-    <div class="cat-head">
-      <h2>Каталог досье</h2>
-      <div class="filters">
-        <input id="cq" type="search" placeholder="Фильтр по тексту и тегам" aria-label="Фильтр каталога">
-        <select id="cd" aria-label="Домен"><option value="">Все домены</option></select>
-        <select id="cs" aria-label="Статус"><option value="">Все статусы</option></select>
-        <select id="ce" aria-label="Эпоха"><option value="">Все эпохи</option></select>
-        <span class="lbl num" id="ccount"></span>
-      </div>
-    </div>
-    <div class="grid" id="grid"></div>
-    <button class="btn more" id="more" hidden>Показать ещё</button>
-  </section>
-
-  <footer class="foot">
-    <p><b style="color:var(--ink)">Как читать статусы.</b> Статус отражает текущий научный и исторический консенсус, а не мнение составителя: «доказано» — подтверждено документами или раскопками, «спорно» — нет консенсуса, «опровергнуто» — проверено и не подтвердилось, «подделка» — доказанная фальсификация, «вера» — религиозная или мифологическая традиция, «гипотеза» — научное или философское предположение.</p>
-    <p><b style="color:var(--ink)">Как читать связи.</b> «Источник» — идея выросла из другой. «Дополняет» — развивает или продолжает. «Пересекается» — общий мотив, символ или персонаж. «Опровергает» — свидетельство, которое противоречит теории.</p>
-    <p>База пополняется партиями: новые домены, узлы и связи добавляются регулярно. Дата последней сборки указана в шапке. Нашли ошибку или хотите предложить тему — <a href="https://github.com/monxley/archivum/issues">напишите в Issues</a>.</p>
   </footer>
+</main>
+
+<div class="rail">
+  <span class="pct num" id="pct">000</span>
+  <button class="eye" id="eye" title="Наверх" aria-label="Наверх"></button>
 </div>
-
-<aside class="dossier" id="dossier" aria-label="Досье" aria-hidden="true"></aside>
-<div class="scrim" id="scrim" hidden></div>
-
-<div class="rail" aria-hidden="false">
-  <div class="line"></div>
-  <span class="pct num" id="pct" style="top:8px">000</span>
-  <button class="eye" id="eye" title="Наверх" aria-label="Наверх">
-    
-  </button>
-</div>
-
-
 
 <script src="data.js"></script>
 <script src="app.js"></script>
