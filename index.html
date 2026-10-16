@@ -39,7 +39,7 @@
   color-scheme:dark}
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:72px}
+html{scroll-behavior:smooth;scroll-padding-top:116px}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--font-body);-webkit-font-smoothing:antialiased}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--surface)}
@@ -87,6 +87,17 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margi
 .icon-btn:hover{border-color:var(--ink)}
 .icon-btn svg{width:16px;height:16px}
 
+.subnav{border-top:1px solid var(--line-2)}
+.subnav .wrap{display:flex;gap:4px;padding-block:6px;overflow-x:auto;scrollbar-width:none}
+.subnav a{flex:none;text-decoration:none;font-size:13px;color:var(--ink-2);padding:5px 12px;border-radius:999px}
+.subnav a:hover{background:var(--bg);color:var(--ink)}
+.subnav a b{font:500 11px var(--font-mono);color:var(--mute);margin-left:6px}
+.ledger{display:grid;grid-template-columns:repeat(5,minmax(0,auto));justify-content:start;margin:22px 0 0;border-top:1px solid var(--ink);border-bottom:1px solid var(--line)}
+.ledger div{padding:10px 22px 10px 0;margin-right:22px;border-right:1px solid var(--line)}
+.ledger div:last-child{border-right:0;margin-right:0}
+.ledger dt{font:500 10.5px/1.4 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.ledger dd{margin:2px 0 0;font:400 30px/1.05 var(--font-display);font-variant-numeric:tabular-nums}
+.ledger dd.red{color:var(--accent)}
 /* ---------- intro ---------- */
 .intro{padding-block:36px 22px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:32px;align-items:end}
 .intro h1{font-size:clamp(34px,4.6vw,60px);line-height:1.02}
@@ -123,6 +134,8 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margi
 .desk-empty p{margin:0;color:var(--ink-2)}
 .entry{padding:24px 26px 28px;display:grid;gap:14px;align-content:start}
 .entry .meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.catno{margin-left:auto;font:500 11px var(--font-mono);letter-spacing:.1em;color:var(--mute)}
+.entry{border-top:4px solid var(--fam,var(--ink))}
 .entry .dom{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-2);cursor:pointer;background:none;border:0;padding:0}
 .entry h2{font-size:clamp(30px,3vw,38px);line-height:1.05}
 .entry .en{font:400 13px var(--font-mono);color:var(--mute);margin-top:-6px}
@@ -149,6 +162,9 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margi
 .domains{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .domain{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:10px;align-content:start}
 .domain header{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dbar{display:flex;height:6px;border-radius:3px;overflow:hidden;gap:2px}
+.dbar i{display:block;height:100%}
+.dcap{font:500 10.5px var(--font-mono);letter-spacing:.06em;color:var(--mute);margin-top:-4px}
 .domain h3{font-size:22px;line-height:1.1;display:flex;align-items:center;gap:9px}
 .domain .count{font:500 12px var(--font-mono);color:var(--mute)}
 .domain ul{list-style:none;margin:0;padding:0;display:grid;gap:2px;min-width:0}
@@ -231,6 +247,9 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margi
   .top-meta .counts{display:none}
   .brand span{display:none}
   .intro{grid-template-columns:minmax(0,1fr);padding-block:24px 16px;gap:18px}
+  .ledger{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ledger div{margin-right:0;padding-right:10px;border-right:0}
+  .ledger dd{font-size:24px}
   .path-form{grid-template-columns:minmax(0,1fr)}
   .path-form .arrow{display:none}
   .row{grid-template-columns:10px minmax(0,1fr) auto;padding:12px 14px}
@@ -259,6 +278,9 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margi
       </button>
     </div>
   </div>
+  <nav class="subnav" aria-label="Разделы страницы"><div class="wrap">
+    <a href="#explorer">Карта и досье</a><a href="#sections">Разделы<b id="n-dom"></b></a><a href="#paths">Как связаны</a><a href="#stats">Обзор</a><a href="#register">Реестр<b id="n-reg"></b></a>
+  </div></nav>
 </header>
 
 <main id="top">
@@ -268,6 +290,7 @@ h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margi
         <div class="eyebrow">Атлас · <span id="m-date"></span></div>
         <h1>Во что верили, что скрывали и что <em>нашли</em></h1>
         <p>Теории заговора, эзотерика, мифы, священные тексты и находки археологов в одной карте связей. У каждой записи есть статус по научному консенсусу и, где возможно, первоисточник.</p>
+        <dl class="ledger" id="ledger"></dl>
       </div>
       <div class="starts">
         <div class="eyebrow">С чего начать</div>

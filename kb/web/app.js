@@ -40,6 +40,12 @@
 
   $("m-nodes").textContent = fmt(nodes.length);
   $("m-edges").textContent = fmt(edges.length);
+  const cnt = (f) => nodes.filter(f).length;
+  $("ledger").innerHTML = [["Записей", fmt(nodes.length)], ["Связей", fmt(edges.length)], ["Разделов", domKeys.length],
+    ["Доказано", fmt(cnt((n) => n.s === "fact"))], ["Опровергнуто", fmt(cnt((n) => n.s === "debunked" || n.s === "hoax")), "red"]]
+    .map(([t, v, c]) => `<div><dt>${t}</dt><dd class="${c || ""}">${v}</dd></div>`).join("");
+  $("n-dom").textContent = domKeys.length; $("n-reg").textContent = fmt(nodes.length);
+  const catNo = new Map(nodes.map((n, i) => [n, "№ " + String(i + 1).padStart(4, "0")]));
   $("m-date").textContent = "обновлён " + (KB.built ? new Date(KB.built).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }) : "");
 
   /* ---------- тема ---------- */
@@ -242,13 +248,12 @@
     const max = W < 640 ? 16 : 32;
     for (const n of fSet) {
       if (n === c) continue;
-      const flip = Math.cos(n.fa) < 0;
-      ctx.save(); ctx.translate(n.x, n.y); ctx.rotate(flip ? n.fa + Math.PI : n.fa);
-      const off = (rad(n) * 1.15 + 7 / k) * (flip ? -1 : 1);
+      const cs = Math.cos(n.fa), sn = Math.sin(n.fa), r = rad(n) * 1.15 + 7 / k;
       const t = n.t.length > max ? n.t.slice(0, max - 1) + "…" : n.t;
       ctx.globalAlpha = hover && n !== hover ? 0.5 : 1;
-      label(t, off, 0, k, 12.5, n === hover ? 600 : 400, n === hover ? C.accent : C.ink, flip ? "right" : "left");
-      ctx.restore();
+      const col = n === hover ? C.accent : C.ink, w = n === hover ? 600 : 400;
+      if (Math.abs(cs) < 0.28) label(t, n.x, n.y + (sn > 0 ? r + 6 / k : -r - 6 / k), k, 12.5, w, col, "center"); // сверху и снизу — по центру
+      else label(t, n.x + (cs > 0 ? r : -r), n.y, k, 12.5, w, col, cs > 0 ? "left" : "right");
     }
     ctx.globalAlpha = 1;
     ctx.font = `400 ${Math.max(20, 26 * k) / k}px Forum, Georgia, serif`;
@@ -434,8 +439,8 @@
     const groups = groupsOf(n).map((g) => `
       <section><h3><span>${g.title}</span><span class="num">${g.items.length}</span></h3><ul>${g.items.map((a) =>
         `<li><button data-id="${a.n.id}"><i class="dot" style="background:${famVar(a.n.d)}"></i><span>${esc(a.n.t)}</span><em>${esc(DOMS[a.n.d])}</em></button></li>`).join("")}</ul></section>`).join("");
-    desk.innerHTML = `<article class="entry">
-      <div class="meta"><button class="dom" data-dom="${n.d}"><i class="dot" style="background:${famVar(n.d)}"></i>${esc(DOMS[n.d])}</button>${statusChip(n.s)}</div>
+    desk.innerHTML = `<article class="entry" style="--fam:${famVar(n.d)}">
+      <div class="meta"><button class="dom" data-dom="${n.d}"><i class="dot" style="background:${famVar(n.d)}"></i>${esc(DOMS[n.d])}</button>${statusChip(n.s)}<span class="catno">ДОСЬЕ ${catNo.get(n)}</span></div>
       <h2>${esc(n.t)}</h2>
       ${n.en ? `<div class="en">${esc(n.en)}</div>` : ""}
       <p class="sum">${esc(n.sum)}</p>
@@ -501,11 +506,18 @@
   $("starts").addEventListener("click", (e) => { const b = e.target.closest("button[data-id]"); if (b) choose(byId.get(b.dataset.id), { scroll: true }); });
   $("random").onclick = () => { const pool = nodes.filter((n) => n.deg >= 3); choose(pool[Math.floor(Math.random() * pool.length)], { scroll: true }); };
 
+  const SCOL = { fact: "var(--ok)", disputed: "var(--warn)", debunked: "var(--bad)", hoax: "var(--bad)", belief: "var(--belief)", hypothesis: "var(--hyp)" };
+  const sOrder = ["fact", "hypothesis", "disputed", "belief", "debunked", "hoax"];
   /* ---------- разделы ---------- */
   const domOrder = [...domKeys].sort((a, b) => famOf[a] - famOf[b]);
   $("domains").innerHTML = domOrder.map((d) => {
     const ns = byDeg.filter((n) => n.d === d);
+    const by = (s) => ns.filter((n) => n.s === s).length;
+    const bar = sOrder.map((s) => by(s) ? `<i style="width:${(by(s) / ns.length) * 100}%;background:${SCOL[s]}" title="${STATUS[s]}: ${by(s)}"></i>` : "").join("");
+    const deb = by("debunked") + by("hoax");
     return `<article class="domain"><header><h3><i class="dot" style="background:${famVar(d)}"></i>${esc(DOMS[d])}</h3><span class="count num">${ns.length}</span></header>
+      <div class="dbar" role="img" aria-label="Статусы записей раздела">${bar}</div>
+      <div class="dcap">${Math.round((by("fact") / ns.length) * 100)}% доказано · ${Math.round((deb / ns.length) * 100)}% опровергнуто</div>
       <ul>${ns.slice(0, 5).map((n) => `<li><button data-id="${n.id}">${esc(n.t)}</button></li>`).join("")}</ul>
       <button class="all" data-dom="${d}">Все записи раздела</button></article>`;
   }).join("");
@@ -583,8 +595,6 @@
     $("timeline").addEventListener("mouseleave", () => (tip.hidden = true));
     $("timeline").addEventListener("click", (e) => { const g = e.target.closest(".tbin"); if (g) filterRegister({ e: g.dataset.i }); });
   })();
-  const SCOL = { fact: "var(--ok)", disputed: "var(--warn)", debunked: "var(--bad)", hoax: "var(--bad)", belief: "var(--belief)", hypothesis: "var(--hyp)" };
-  const sOrder = ["fact", "hypothesis", "disputed", "belief", "debunked", "hoax"];
   const sCount = Object.fromEntries(sOrder.map((s) => [s, nodes.filter((n) => n.s === s).length]));
   $("statbar").innerHTML = sOrder.map((s) => `<i style="width:${(sCount[s] / nodes.length) * 100}%;background:${SCOL[s]};${s === "hoax" ? "opacity:.55" : ""}"></i>`).join("");
   $("statlist").innerHTML = sOrder.map((s) => `<li><button data-s="${s}">${statusChip(s)}<span>${Math.round((sCount[s] / nodes.length) * 100)}% записей</span><b class="num">${sCount[s]}</b></button></li>`).join("");
@@ -646,9 +656,10 @@
     <path d="M24 80 H76 M33 74 V80 M67 74 V80 M50 80 V86" stroke="var(--ink)" stroke-width="1" opacity=".35"/>
   </g></svg>`;
   const pupil = eye.querySelector(".pupil"), pct = $("pct");
-  const TOP = 70;
-  let ey = TOP, walkT = 0;
+  const header = document.querySelector(".top");
+  let TOP = 110, ey = TOP, walkT = 0;
   function crawl() {
+    TOP = header.getBoundingClientRect().bottom + 10; // око начинает путь сразу под шапкой
     const max = document.documentElement.scrollHeight - innerHeight;
     const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
     const y = TOP + p * (innerHeight - eye.offsetHeight - TOP - 28);
