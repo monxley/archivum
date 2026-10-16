@@ -1,0 +1,316 @@
+<title>ARCHIVUM</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="База знаний конспирологии, эзотерики, археологии и священных текстов в виде карты связей.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;800&family=Oswald:wght@400;600&display=swap">
+<style>
+/* Layout: technical research sheet — a hairline-ruled header strip, one big map plate, a grid of instrument panels, then the card catalogue; the Eye crawls a ruler on the right edge. */
+:root{
+  --paper:#ebeae4; --plate:#f6f5f0; --ink:#151513; --mute:#6f6e66; --rule:#c9c7bd; --faint:#dcdad2;
+  --accent:#c8321e; --gold:#d6a21c;
+  --st-fact:#2f6b3a; --st-disputed:#a8761a; --st-debunked:#b0301e; --st-hoax:#7c2d6b; --st-belief:#3a5a8c; --st-hypothesis:#4f6f73;
+  --d0:#b0301e; --d1:#7a5c1e; --d2:#8a6a3d; --d3:#3a5a8c; --d4:#6b3f8a; --d5:#2f6b3a; --d6:#1f7a7a; --d7:#55606e; --d8:#a35a1a; --d9:#2b2b2b; --d10:#8a5a2b; --d11:#5f6f2a; --d12:#9a6b10;
+  --f-display:"Oswald","Arial Narrow",Impact,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --rail:44px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0e0e0d; --plate:#161614; --ink:#e8e6de; --mute:#8f8d84; --rule:#34332f; --faint:#23221f;
+  --accent:#e2533c; --gold:#e3b23c;
+  --st-fact:#6fb37c; --st-disputed:#d9a441; --st-debunked:#e2604a; --st-hoax:#c27ab0; --st-belief:#7c9ed6; --st-hypothesis:#8fb3b7;
+  --d0:#e2604a; --d1:#cfa35a; --d2:#c9a77a; --d3:#7c9ed6; --d4:#b08ad6; --d5:#6fb37c; --d6:#5cc2c2; --d7:#9aa6b4; --d8:#e09450; --d9:#d8d6ce; --d10:#d49a5c; --d11:#b5c46a; --d12:#e8bf5a;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0e0e0d; --plate:#161614; --ink:#e8e6de; --mute:#8f8d84; --rule:#34332f; --faint:#23221f;
+  --accent:#e2533c; --gold:#e3b23c;
+  --st-fact:#6fb37c; --st-disputed:#d9a441; --st-debunked:#e2604a; --st-hoax:#c27ab0; --st-belief:#7c9ed6; --st-hypothesis:#8fb3b7;
+  --d0:#e2604a; --d1:#cfa35a; --d2:#c9a77a; --d3:#7c9ed6; --d4:#b08ad6; --d5:#6fb37c; --d6:#5cc2c2; --d7:#9aa6b4; --d8:#e09450; --d9:#d8d6ce; --d10:#d49a5c; --d11:#b5c46a; --d12:#e8bf5a;
+  color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--paper);color:var(--ink);font:400 13px/1.55 var(--f-mono);margin:0;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(calc(16px + var(--rail)), calc(env(safe-area-inset-right, 0px) + var(--rail)));
+  padding-block:16px 40px}
+.wrap{max-width:1320px;margin:0 auto;display:grid;gap:14px}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.lbl{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.num{font-variant-numeric:tabular-nums}
+
+/* header strip */
+.strip{display:grid;grid-template-columns:auto 1fr auto;gap:0;border:1px solid var(--ink);background:var(--plate)}
+.strip>div{padding:8px 12px;border-right:1px solid var(--rule);min-width:0}
+.strip>div:last-child{border-right:0}
+.brand{font:600 22px/1 var(--f-display);letter-spacing:.06em;text-transform:uppercase}
+.brand small{display:block;font:400 9px/1.6 var(--f-mono);letter-spacing:.18em;color:var(--mute);margin-top:3px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 22px;align-items:center}
+.meta b{font-weight:800;font-size:14px}
+.stamp{text-align:right;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.stamp b{color:var(--accent);font-weight:600}
+
+/* map plate */
+.plate{position:relative;border:1px solid var(--ink);background:var(--plate);overflow:hidden}
+.map{position:relative;height:clamp(440px,72vh,820px)}
+.map canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+.map canvas.drag{cursor:grabbing}
+.tl{position:absolute;top:10px;left:12px;right:12px;display:flex;justify-content:space-between;gap:10px;align-items:flex-start;pointer-events:none;flex-wrap:wrap}
+.tl>*{pointer-events:auto}
+.ttl{font:600 15px/1.1 var(--f-display);letter-spacing:.08em;text-transform:uppercase;background:var(--plate);padding:4px 8px;border:1px solid var(--rule)}
+.ttl span{display:block;font:400 9px/1.5 var(--f-mono);letter-spacing:.14em;color:var(--mute)}
+.ctrls{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--plate);border:1px solid var(--ink);padding:5px 9px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--plate)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--plate)}
+.search{position:relative}
+.search input{width:min(260px,62vw);background:var(--plate);border:1px solid var(--ink);padding:5px 9px;font-size:12px}
+.results{position:absolute;top:100%;left:0;right:0;z-index:5;background:var(--plate);border:1px solid var(--ink);border-top:0;max-height:300px;overflow:auto}
+.results button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--faint);padding:6px 9px;cursor:pointer}
+.results button:hover,.results button.on{background:var(--faint)}
+.results em{font-style:normal;color:var(--mute);font-size:10px;display:block}
+.card{position:absolute;left:12px;bottom:12px;width:min(380px,calc(100% - 24px));background:var(--plate);border:1px solid var(--ink);padding:10px 12px;display:grid;gap:6px}
+.card h3{margin:0;font:600 20px/1.1 var(--f-display);letter-spacing:.02em;text-wrap:balance}
+.card p{margin:0;font-size:12px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.card .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.legend{position:absolute;right:12px;bottom:12px;background:var(--plate);border:1px solid var(--rule);padding:6px 9px;font-size:10px;display:grid;gap:3px}
+.legend i{display:inline-block;width:18px;height:0;border-top:2px solid;vertical-align:middle;margin-right:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid currentColor;padding:1px 6px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.chip::before{content:"";width:6px;height:6px;background:currentColor}
+.s-fact{color:var(--st-fact)} .s-disputed{color:var(--st-disputed)} .s-debunked{color:var(--st-debunked)}
+.s-hoax{color:var(--st-hoax)} .s-belief{color:var(--st-belief)} .s-hypothesis{color:var(--st-hypothesis)}
+.hint{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;font-size:10px;color:var(--mute);letter-spacing:.1em;pointer-events:none}
+
+/* instrument panels */
+.panels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.pn{border:1px solid var(--ink);background:var(--plate);padding:10px 12px;display:grid;gap:8px;align-content:start;min-width:0}
+.pn.w2{grid-column:span 2}
+.pn header{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--rule);padding-bottom:6px}
+.pn header b{font:600 13px/1.2 var(--f-display);letter-spacing:.1em;text-transform:uppercase}
+.bars{display:grid;gap:4px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) 34px;gap:8px;align-items:center;background:none;border:0;padding:0;text-align:left;cursor:pointer}
+.bar span{position:relative;display:block;font-size:11px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar span i{position:absolute;inset:0 auto 0 0;background:var(--faint);z-index:0}
+.bar span em{position:relative;font-style:normal}
+.bar b{font-weight:600;text-align:right;font-size:11px}
+.bar[aria-pressed="false"]{opacity:.35}
+.sw{display:inline-block;width:8px;height:8px;margin-right:6px;vertical-align:middle}
+.hubs{list-style:none;margin:0;padding:0;display:grid;gap:2px;counter-reset:h}
+.hubs button{width:100%;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:6px;background:none;border:0;padding:3px 0;border-bottom:1px dotted var(--rule);cursor:pointer;text-align:left;font-size:11px}
+.hubs button:hover{color:var(--accent)}
+.hubs button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.timeline svg{width:100%;height:auto;display:block}
+.path-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:6px}
+.path-form input{background:var(--paper);border:1px solid var(--ink);padding:5px 8px;font-size:12px;min-width:0}
+.chain{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:11px;min-height:28px}
+.chain button{background:var(--paper);border:1px solid var(--ink);padding:3px 7px;cursor:pointer}
+.chain button:hover{background:var(--ink);color:var(--plate)}
+.chain .via{color:var(--mute);font-size:9px;letter-spacing:.1em;text-transform:uppercase}
+.investigator{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;align-items:center}
+.investigator svg{width:72px;height:auto;display:block}
+.walk{font-size:11px;display:grid;gap:2px;max-height:150px;overflow:auto}
+.walk button{background:none;border:0;padding:0;text-align:left;cursor:pointer;font-size:11px}
+.walk button:hover{color:var(--accent)}
+
+/* catalogue */
+.cat-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:end;border-bottom:2px solid var(--ink);padding-bottom:8px}
+.cat-head h2{margin:0;font:600 30px/1 var(--f-display);letter-spacing:.04em;text-transform:uppercase}
+.filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.filters input{background:var(--plate);border:1px solid var(--ink);padding:5px 9px;width:min(260px,100%)}
+.filters select{background:var(--plate);border:1px solid var(--ink);padding:5px 6px;font-size:11px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.entry{border:1px solid var(--rule);background:var(--plate);padding:9px 11px;display:grid;gap:5px;text-align:left;cursor:pointer;align-content:start;position:relative}
+.entry:hover{border-color:var(--ink)}
+.entry .code{display:flex;justify-content:space-between;gap:6px;font-size:9px;letter-spacing:.12em;color:var(--mute);text-transform:uppercase}
+.entry h4{margin:0;font:600 16px/1.15 var(--f-display);letter-spacing:.02em;text-wrap:balance}
+.entry p{margin:0;font-size:11px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.entry .dom{position:absolute;left:-1px;top:-1px;bottom:-1px;width:3px}
+.more{justify-self:center}
+.empty{padding:30px;text-align:center;color:var(--mute);border:1px dashed var(--rule)}
+
+/* dossier drawer */
+.dossier{position:fixed;top:0;right:0;bottom:0;width:min(460px,100vw);background:var(--plate);border-left:1px solid var(--ink);z-index:40;
+  padding:calc(14px + env(safe-area-inset-top,0px)) calc(18px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) 18px;
+  overflow:auto;transform:translateX(100%);transition:transform .25s ease;display:grid;gap:12px;align-content:start}
+.dossier.open{transform:none}
+@media (prefers-reduced-motion: reduce){.dossier{transition:none}}
+.dossier h2{margin:0;font:600 30px/1.05 var(--f-display);text-wrap:balance}
+.dossier .en{color:var(--mute);font-size:11px}
+.dossier .sum{font-size:13px;line-height:1.65;max-width:62ch}
+.dossier dl{display:grid;grid-template-columns:90px minmax(0,1fr);gap:4px 10px;margin:0;font-size:11px}
+.dossier dt{color:var(--mute);letter-spacing:.1em;text-transform:uppercase;font-size:9px;padding-top:2px}
+.dossier dd{margin:0}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tags span{font-size:10px;border:1px solid var(--rule);padding:1px 6px}
+.links h5{margin:8px 0 4px;font:600 11px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase}
+.links ul{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.links button{width:100%;background:none;border:0;border-bottom:1px dotted var(--rule);padding:4px 0;text-align:left;cursor:pointer;display:flex;justify-content:space-between;gap:8px;font-size:12px}
+.links button:hover{color:var(--accent)}
+.links button em{font-style:normal;font-size:10px;color:var(--mute);white-space:nowrap}
+.dossier .x{justify-self:end}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.25);z-index:39}
+
+/* footer */
+.foot{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;border-top:1px solid var(--ink);padding-top:12px;font-size:11px;color:var(--mute)}
+.foot p{margin:0;max-width:62ch}
+
+/* the Eye on its ruler */
+.rail{position:fixed;top:0;bottom:0;right:0;width:calc(var(--rail) + env(safe-area-inset-right,0px));padding-right:env(safe-area-inset-right,0px);z-index:30;pointer-events:none;
+  border-left:1px solid var(--rule);background:repeating-linear-gradient(to bottom,transparent 0 23px,var(--rule) 23px 24px) right 0 top 0/10px 100% no-repeat}
+.rail .line{position:absolute;top:0;bottom:0;left:50%;border-left:1px dashed var(--rule)}
+.rail .pct{position:absolute;left:3px;font-size:9px;letter-spacing:.08em;color:var(--mute);writing-mode:vertical-rl;transform:rotate(180deg)}
+.eye{position:absolute;left:50%;top:0;width:60px;margin-left:-30px;pointer-events:auto;cursor:pointer;will-change:transform;background:none;border:0;padding:0}
+.eye svg{display:block;width:100%;height:auto;overflow:visible}
+.eye .body{transition:transform .35s cubic-bezier(.5,1.6,.5,1);transform-box:fill-box;transform-origin:50% 50%}
+.eye.down .body{transform:rotate(180deg)}
+.eye.walk .legL{animation:legL .18s ease-in-out infinite alternate}
+.eye.walk .legR{animation:legR .18s ease-in-out infinite alternate}
+.eye.walk .alt{animation-direction:alternate-reverse}
+@keyframes legL{from{transform:rotate(-14deg)}to{transform:rotate(12deg)}}
+@keyframes legR{from{transform:rotate(14deg)}to{transform:rotate(-12deg)}}
+@media (prefers-reduced-motion: reduce){.eye.walk .legL,.eye.walk .legR{animation:none}}
+
+@media (max-width:1000px){.panels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){
+  :root{--rail:30px}
+  .strip{grid-template-columns:1fr}
+  .strip>div{border-right:0;border-bottom:1px solid var(--rule)}
+  .stamp{text-align:left}
+  .panels{grid-template-columns:minmax(0,1fr)}
+  .pn.w2{grid-column:auto}
+  .path-form{grid-template-columns:minmax(0,1fr)}
+  .legend{display:none}
+  .eye{width:40px;margin-left:-20px}
+  .map{height:clamp(420px,78vh,700px)}
+  .card{bottom:8px;left:8px;width:calc(100% - 16px)}
+  .card p{-webkit-line-clamp:3}
+  .hint{display:none}
+}
+</style>
+
+<div class="wrap">
+  <header class="strip">
+    <div class="brand">ARCHIVUM<small>Исследовательский движок · все теории мира</small></div>
+    <div class="meta">
+      <span class="lbl">Узлов <b class="num" id="m-nodes">—</b></span>
+      <span class="lbl">Связей <b class="num" id="m-edges">—</b></span>
+      <span class="lbl">Доменов <b class="num" id="m-domains">—</b></span>
+      <span class="lbl">Доказано <b class="num" id="m-fact">—</b></span>
+      <span class="lbl">Опровергнуто <b class="num" id="m-debunked">—</b></span>
+    </div>
+    <div class="stamp">Только чтение · <b>решение за вами</b><br><span id="m-date"></span></div>
+  </header>
+
+  <section class="plate" aria-label="Карта соединений">
+    <div class="map" id="map">
+      <canvas id="graph" aria-label="Граф связей между теориями, текстами и находками"></canvas>
+      <div class="tl">
+        <div class="ttl">Карта соединений<span>Перетаскивайте · колесо/щипок — масштаб · клик — досье</span></div>
+        <div class="ctrls">
+          <div class="search">
+            <input id="q" type="search" placeholder="Найти узел: Атлантида, MKUltra…" autocomplete="off" aria-label="Поиск по базе">
+            <div class="results" id="results" hidden></div>
+          </div>
+          <button class="btn" id="v-net" aria-pressed="true">Сеть</button>
+          <button class="btn" id="v-ring" aria-pressed="false">Кольцо</button>
+          <button class="btn" id="z-in" aria-label="Приблизить">+</button>
+          <button class="btn" id="z-out" aria-label="Отдалить">−</button>
+          <button class="btn" id="v-reset">Сброс</button>
+        </div>
+      </div>
+      <div class="card" id="card" hidden>
+        <div class="row"><span class="lbl" id="c-dom"></span><span id="c-st"></span><span class="lbl num" id="c-era"></span></div>
+        <h3 id="c-title"></h3>
+        <p id="c-sum"></p>
+        <div class="row"><button class="btn" id="c-open">Открыть досье</button><button class="btn" id="c-clear">Снять выбор</button><span class="lbl num" id="c-deg"></span></div>
+      </div>
+      <div class="legend" aria-label="Типы связей">
+        <span><i style="border-color:var(--ink)"></i>источник</span>
+        <span><i style="border-color:var(--mute);border-top-style:solid"></i>дополняет</span>
+        <span><i style="border-color:var(--mute);border-top-style:dotted"></i>пересекается</span>
+        <span><i style="border-color:var(--accent);border-top-style:dashed"></i>опровергает</span>
+      </div>
+      <div class="hint" id="hint">наведи на узел · клик открывает досье</div>
+    </div>
+  </section>
+
+  <section class="panels" aria-label="Приборная панель">
+    <article class="pn">
+      <header><b>Домены</b><span class="lbl">фильтр карты</span></header>
+      <div class="bars" id="p-domains"></div>
+    </article>
+    <article class="pn">
+      <header><b>Статус</b><span class="lbl">научный консенсус</span></header>
+      <div class="bars" id="p-status"></div>
+    </article>
+    <article class="pn w2 timeline">
+      <header><b>Хронология</b><span class="lbl">узлов по эпохам · клик фильтрует каталог</span></header>
+      <div id="p-time"></div>
+    </article>
+    <article class="pn">
+      <header><b>Узлы-хабы</b><span class="lbl">больше всего связей</span></header>
+      <ol class="hubs" id="p-hubs"></ol>
+    </article>
+    <article class="pn w2">
+      <header><b>Цепочка</b><span class="lbl">кратчайший путь между идеями</span></header>
+      <form class="path-form" id="path-form">
+        <input id="pa" list="all-ids" placeholder="Откуда: Масонство" aria-label="Начальный узел">
+        <input id="pb" list="all-ids" placeholder="Куда: Нибиру" aria-label="Конечный узел">
+        <button class="btn" type="submit">Связать</button>
+      </form>
+      <datalist id="all-ids"></datalist>
+      <div class="chain" id="chain"><span class="lbl">Введите два узла — найдём, через что они соприкасаются.</span></div>
+    </article>
+    <article class="pn">
+      <header><b>Око · следователь</b><span class="lbl">случайная прогулка</span></header>
+      <div class="investigator">
+        <div id="inv-eye" aria-hidden="true"></div>
+        <div style="display:grid;gap:6px">
+          <button class="btn" id="walk-go">Идти по следу</button>
+          <span class="lbl">7 шагов по связям от случайного узла</span>
+        </div>
+      </div>
+      <div class="walk" id="walk"></div>
+    </article>
+  </section>
+
+  <section id="catalog" style="display:grid;gap:12px" aria-label="Каталог">
+    <div class="cat-head">
+      <h2>Каталог досье</h2>
+      <div class="filters">
+        <input id="cq" type="search" placeholder="Фильтр по тексту и тегам" aria-label="Фильтр каталога">
+        <select id="cd" aria-label="Домен"><option value="">Все домены</option></select>
+        <select id="cs" aria-label="Статус"><option value="">Все статусы</option></select>
+        <select id="ce" aria-label="Эпоха"><option value="">Все эпохи</option></select>
+        <span class="lbl num" id="ccount"></span>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+    <button class="btn more" id="more" hidden>Показать ещё</button>
+  </section>
+
+  <footer class="foot">
+    <p><b style="color:var(--ink)">Как читать статусы.</b> Статус отражает текущий научный и исторический консенсус, а не мнение составителя: «доказано» — подтверждено документами или раскопками, «спорно» — нет консенсуса, «опровергнуто» — проверено и не подтвердилось, «подделка» — доказанная фальсификация, «вера» — религиозная или мифологическая традиция, «гипотеза» — научное или философское предположение.</p>
+    <p><b style="color:var(--ink)">Как читать связи.</b> «Источник» — идея выросла из другой. «Дополняет» — развивает или продолжает. «Пересекается» — общий мотив, символ или персонаж. «Опровергает» — свидетельство, которое противоречит теории.</p>
+    <p>База пополняется партиями: новые домены, узлы и связи добавляются регулярно. Дата последней сборки указана в шапке. Нашли ошибку или хотите предложить тему — <a href="https://github.com/monxley/archivum/issues">напишите в Issues</a>.</p>
+  </footer>
+</div>
+
+<aside class="dossier" id="dossier" aria-label="Досье" aria-hidden="true"></aside>
+<div class="scrim" id="scrim" hidden></div>
+
+<div class="rail" aria-hidden="false">
+  <div class="line"></div>
+  <span class="pct num" id="pct" style="top:8px">000</span>
+  <button class="eye" id="eye" title="Наверх" aria-label="Наверх">
+    
+  </button>
+</div>
+
+
+
+<script src="data.js"></script>
+<script src="app.js"></script>
