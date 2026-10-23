@@ -1,0 +1,504 @@
+<title>ARCHIVUM</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Опись тайного знания: теории заговора, эзотерика, мифы, священные тексты и находки археологов в одной карте связей.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@400;500;600&family=Alegreya:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: the reading room of a secret order's archive. A gilt seal turns in three dimensions above the inventory
+   ledger; below it, the vitrine (map | dossier card), the dictionary of signs, the folios of the thirteen fonds,
+   the chain finder, the chronicle and the full inventory. The Eye crawls the gilt ruler on the right edge. */
+:root{
+  /* dark-first: lamp-black with an oxblood bias, bone text, leaf gold, sealing wax */
+  --bg:#0f0b0a; --bg-2:#130e0c; --surface:#19120f; --surface-2:#211813; --ink:#ebdfc6; --ink-2:#c4b498; --mute:#8d7d66;
+  --line:#3b2e25; --line-2:#281e19; --gold:#cfa95a; --gold-2:#8c6d33; --gold-glow:rgb(207 169 90 / .16); --seal:#b0301f; --seal-ink:#f3e3c4;
+  --accent:#cfa95a;
+  --f1:#3987e5; --f2:#d95926; --f3:#199e70; --f4:#c98500; --f5:#d55181; --f6:#2f9a2f; --f7:#9085e9;
+  --ok:#d8b25e; --warn:#e08a48; --bad:#e2604c; --hyp:#8fb0d6; --belief:#b79bdc;
+  --grain-op:.07;
+  --font-display:"Cormorant Unicase","Cormorant SC","Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --font-body:"Alegreya",Georgia,"Times New Roman",serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --rail:40px; --radius:3px;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  /* parchment: the same archive by daylight */
+  --bg:#e9dec6; --bg-2:#e3d6ba; --surface:#f4ecda; --surface-2:#efe4cc; --ink:#22170e; --ink-2:#4b3a29; --mute:#7a6650;
+  --line:#c9b793; --line-2:#dccdad; --gold:#8a6420; --gold-2:#a8803a; --gold-glow:rgb(138 100 32 / .12); --seal:#9b2116; --seal-ink:#f8ecd4;
+  --accent:#8a6420;
+  --f1:#2a78d6; --f2:#eb6834; --f3:#1baf7a; --f4:#eda100; --f5:#e87ba4; --f6:#008300; --f7:#6250d6;
+  --ok:#8a6420; --warn:#b4501e; --bad:#a8261b; --hyp:#2f5f8f; --belief:#6a4c99;
+  --grain-op:.10;
+  color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#e9dec6; --bg-2:#e3d6ba; --surface:#f4ecda; --surface-2:#efe4cc; --ink:#22170e; --ink-2:#4b3a29; --mute:#7a6650;
+  --line:#c9b793; --line-2:#dccdad; --gold:#8a6420; --gold-2:#a8803a; --gold-glow:rgb(138 100 32 / .12); --seal:#9b2116; --seal-ink:#f8ecd4;
+  --accent:#8a6420;
+  --f1:#2a78d6; --f2:#eb6834; --f3:#1baf7a; --f4:#eda100; --f5:#e87ba4; --f6:#008300; --f7:#6250d6;
+  --ok:#8a6420; --warn:#b4501e; --bad:#a8261b; --hyp:#2f5f8f; --belief:#6a4c99;
+  --grain-op:.10;
+  color-scheme:light}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:116px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16.5px/1.6 var(--font-body);-webkit-font-smoothing:antialiased;position:relative}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:70;opacity:var(--grain-op);mix-blend-mode:overlay;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5 0 0 0 0 .4 0 0 0 0 .3 0 0 0 1.4 -.2'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:1.5px solid var(--gold);outline-offset:3px}
+[hidden]{display:none!important}
+::selection{background:var(--gold);color:var(--bg)}
+.wrap{max-width:1380px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(calc(16px + var(--rail)),calc(env(safe-area-inset-right,0px) + var(--rail)))}
+.eyebrow{font:500 10.5px/1.4 var(--font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--font-display);font-weight:500;text-wrap:balance;margin:0;letter-spacing:.02em}
+.sig{display:inline-block;width:1.15em;height:1.15em;flex:none;vertical-align:-.18em;color:var(--gold)}
+.sig svg{display:block;width:100%;height:100%;overflow:visible}
+.sig path,.sig circle{vector-effect:non-scaling-stroke}
+
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:transparent;border-radius:var(--radius);padding:8px 14px;font:500 12px/1.2 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:border-color .15s,color .15s,background .15s;text-decoration:none;color:var(--ink-2)}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn.primary{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.btn.primary:hover{background:transparent;color:var(--gold)}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:4px 12px 4px 9px;font-size:14px;background:var(--surface);cursor:pointer;white-space:nowrap;color:var(--ink)}
+.chip:hover{border-color:var(--gold)}
+.chip .sig{width:15px;height:15px}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+.status{display:inline-flex;align-items:center;gap:6px;font:500 10.5px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;padding:4px 8px 4px 6px;border-radius:2px;border:1px solid currentColor;white-space:nowrap}
+.status .sig{width:13px;height:13px;color:currentColor}
+.st-fact{color:var(--ok)} .st-disputed{color:var(--warn)} .st-debunked{color:var(--bad)} .st-hoax{color:var(--bad);border-style:dashed}
+.st-belief{color:var(--belief)} .st-hypothesis{color:var(--hyp)}
+
+/* gilt corner brackets: the vitrine frame */
+.framed{position:relative}
+.framed::before,.framed::after{content:"";position:absolute;width:22px;height:22px;pointer-events:none;z-index:3;border:1.5px solid var(--gold)}
+.framed::before{top:-5px;left:-5px;border-right:0;border-bottom:0}
+.framed::after{bottom:-5px;right:-5px;border-left:0;border-top:0}
+.rule{display:flex;align-items:center;gap:12px;color:var(--gold)}
+.rule::before,.rule::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold-2),transparent)}
+.rule svg{width:18px;height:18px}
+
+/* ---------- header ---------- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top .wrap{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:20px;align-items:center;padding-block:10px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand .sig{width:34px;height:34px}
+.brand b{font:600 25px/1 var(--font-display);letter-spacing:.22em}
+.brand span{display:block;font:500 9.5px/1.3 var(--font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-top:3px}
+.search{position:relative;max-width:560px;width:100%;justify-self:center}
+.search input{width:100%;height:40px;border:1px solid var(--line);border-radius:2px;background:var(--surface);padding:0 16px 0 42px;font-size:15.5px}
+.search input::placeholder{color:var(--mute);font-style:italic}
+.search input:focus{outline:none;border-color:var(--gold)}
+.search .sig{position:absolute;left:13px;top:11px;width:18px;height:18px}
+.search kbd{position:absolute;right:12px;top:10px;font:500 11px var(--font-mono);color:var(--mute);border:1px solid var(--line);border-radius:2px;padding:2px 6px}
+.results{position:absolute;left:0;right:0;top:46px;background:var(--surface);border:1px solid var(--gold-2);box-shadow:0 24px 50px -20px rgb(0 0 0 / .6);overflow:hidden;max-height:min(60vh,440px);overflow-y:auto}
+.results button{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--line-2)}
+.results button:last-child{border-bottom:0}
+.results button:hover,.results button.on{background:var(--surface-2)}
+.results .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.results .d{font:500 10.5px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mute);white-space:nowrap}
+.results .empty{padding:14px;color:var(--mute);font-size:14px}
+.top-meta{display:flex;align-items:center;gap:14px;font:500 11px var(--font-mono);letter-spacing:.06em;color:var(--mute)}
+.top-meta b{color:var(--ink);font-weight:500}
+.icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:transparent;cursor:pointer;display:grid;place-items:center;color:var(--ink-2)}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+.icon-btn svg{width:16px;height:16px}
+.subnav{border-top:1px solid var(--line-2)}
+.subnav .wrap{display:flex;gap:2px;padding-block:5px;overflow-x:auto;scrollbar-width:none}
+.subnav a{flex:none;text-decoration:none;font:500 10.5px/1 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);padding:8px 12px}
+.subnav a:hover{color:var(--gold)}
+.subnav a b{font-weight:500;color:var(--mute);margin-left:6px}
+
+/* ---------- hero: the seal ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:24px;align-items:center;padding-block:28px 34px;position:relative}
+.hero h1{font-size:clamp(40px,5.6vw,80px);line-height:.98;font-weight:500;letter-spacing:.01em}
+.hero h1 em{font-style:normal;color:var(--gold);text-shadow:0 0 40px var(--gold-glow)}
+.hero .lede{margin:18px 0 0;color:var(--ink-2);max-width:54ch;font-size:18px;line-height:1.55}
+.ledger{display:grid;grid-template-columns:repeat(5,minmax(0,auto));justify-content:start;margin:26px 0 0;border-top:1px solid var(--gold-2);border-bottom:1px solid var(--line)}
+.ledger div{padding:10px 20px 10px 0;margin-right:20px;border-right:1px solid var(--line)}
+.ledger div:last-child{border-right:0;margin-right:0}
+.ledger dt{font:500 9.5px/1.4 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.ledger dd{margin:3px 0 0;font:500 32px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.ledger dd.red{color:var(--seal)}
+.starts{display:grid;gap:10px;margin-top:22px}
+.start-row{display:flex;flex-wrap:wrap;gap:8px}
+.seal-box{position:relative;aspect-ratio:1/1;max-width:100%;width:min(100%,600px);justify-self:center}
+.seal-box canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y}
+.seal-cap{position:absolute;left:0;right:0;bottom:2%;text-align:center;font:500 10px/1.5 var(--font-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--mute);pointer-events:none}
+.seal-cap b{color:var(--gold);font-weight:500}
+
+/* ---------- explorer (vitrine) ---------- */
+.explorer{display:grid;grid-template-columns:minmax(0,1fr) 430px;border:1px solid var(--line);background:var(--surface);height:clamp(580px,calc(100vh - 150px),900px)}
+.stage{position:relative;min-width:0;border-right:1px solid var(--line);overflow:hidden;background:
+  radial-gradient(ellipse at 50% 50%,var(--gold-glow),transparent 62%),
+  radial-gradient(circle at 1px 1px,var(--line-2) 1px,transparent 1.3px) 0 0/24px 24px,var(--bg-2)}
+.stage canvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+.stage canvas.drag{cursor:grabbing}
+.stage-top{position:absolute;inset:14px 14px auto 14px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between;pointer-events:none;flex-wrap:wrap}
+.stage-top>*{pointer-events:auto}
+.seg{display:inline-flex;border:1px solid var(--line);background:var(--surface);padding:3px;border-radius:2px}
+.seg button{border:0;background:none;padding:7px 13px;font:500 10.5px/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;cursor:pointer;color:var(--ink-2);border-radius:1px}
+.seg button:hover{color:var(--gold)}
+.seg button[aria-pressed="true"]{background:var(--gold);color:var(--bg)}
+.zoom{display:inline-flex;gap:6px}
+.zoom .icon-btn{width:32px;height:32px;font-size:16px;line-height:1;background:var(--surface)}
+.crumbs{flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:13.5px}
+.crumbs button{border:1px solid var(--line);background:var(--surface);border-radius:2px;padding:3px 10px;cursor:pointer;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
+.crumbs button[aria-current="true"]{border-color:var(--gold);color:var(--gold)}
+.crumbs .sep{color:var(--mute)}
+.legend{position:absolute;left:14px;bottom:14px;right:14px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.legend button{pointer-events:auto;font-size:13px;padding:3px 10px 3px 8px}
+.legend button[aria-pressed="false"]{opacity:.38}
+.legend .note{pointer-events:auto;align-self:center;font:500 10px var(--font-mono);color:var(--mute);letter-spacing:.08em;margin-left:auto}
+.sphere-hint{position:absolute;left:16px;top:62px;font:500 10px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);pointer-events:none}
+
+.desk{min-width:0;overflow-y:auto;display:flex;flex-direction:column;background:
+  repeating-linear-gradient(to bottom,transparent 0 31px,var(--line-2) 31px 32px) 0 120px/100% calc(100% - 120px) no-repeat,var(--surface)}
+.desk-empty{padding:28px;display:grid;gap:14px;align-content:start}
+.desk-empty h2{font-size:30px}
+.desk-empty p{margin:0;color:var(--ink-2)}
+.entry{padding:22px 26px 30px;display:grid;gap:14px;align-content:start;position:relative;background:var(--surface)}
+.entry .cipher{display:flex;justify-content:space-between;gap:10px;font:500 10px/1.4 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute);border-bottom:1px solid var(--line);padding-bottom:10px}
+.entry .cipher b{color:var(--gold);font-weight:500}
+.entry .meta{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center}
+.entry .dom{display:inline-flex;align-items:center;gap:8px;font:500 10.5px/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);cursor:pointer;background:none;border:0;padding:0}
+.entry .dom:hover{color:var(--gold)}
+.entry .dom .sig{width:18px;height:18px;color:var(--fam,var(--gold))}
+.entry h2{font-size:clamp(32px,3vw,42px);line-height:1;font-weight:500}
+.entry .en{font:italic 400 15px var(--font-body);color:var(--mute);margin-top:-8px}
+.entry .sum{font-size:17px;line-height:1.62;margin:0;max-width:60ch}
+.entry .sum::first-letter{font:600 2.9em/0.8 var(--font-display);float:left;margin:.08em .08em 0 0;color:var(--gold)}
+.wax{position:absolute;top:58px;right:22px;width:62px;height:62px;border-radius:50%;display:grid;place-items:center;color:var(--seal-ink);
+  background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--seal) 70%,#fff 12%),var(--seal) 55%,color-mix(in srgb,var(--seal) 70%,#000 30%));
+  box-shadow:0 2px 0 color-mix(in srgb,var(--seal) 60%,#000 40%),inset 0 0 0 3px color-mix(in srgb,var(--seal) 80%,#000 20%);transform:rotate(-8deg)}
+.wax .sig{width:28px;height:28px;color:var(--seal-ink)}
+.wax.st-fact,.wax.st-hypothesis,.wax.st-belief,.wax.st-disputed{--seal:var(--gold-2)}
+.entry .head{padding-right:76px;display:grid;gap:14px}
+.facts{display:grid;grid-template-columns:100px minmax(0,1fr);gap:7px 12px;margin:0;font-size:15px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:12px}
+.facts dt{color:var(--mute);font:500 10px/2 var(--font-mono);letter-spacing:.12em;text-transform:uppercase}
+.facts dd{margin:0;min-width:0}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tags span{font:500 10.5px var(--font-mono);letter-spacing:.06em;color:var(--ink-2);border:1px solid var(--line);padding:3px 8px;border-radius:2px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.links{display:grid;gap:18px}
+.links h3{font:500 10px/1 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:0 0 6px;display:flex;justify-content:space-between}
+.links ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.links li button{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line-2);padding:8px 2px;cursor:pointer;font-size:15.5px}
+.links li button:hover{color:var(--gold)}
+.links li button .sig{width:15px;height:15px}
+.links li button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.links li button em{font:500 9.5px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:var(--mute)}
+
+/* ---------- sections ---------- */
+.section{padding-block:72px 8px;display:grid;gap:26px}
+.section-head{display:grid;gap:8px;justify-items:center;text-align:center}
+.section-head h2{font-size:clamp(32px,3.6vw,50px);line-height:1}
+.section-head p{margin:0;color:var(--ink-2);max-width:62ch;font-size:17px}
+.section-head .rule{width:min(420px,80%)}
+
+/* dictionary of signs */
+.signs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.sign{background:var(--surface);padding:22px 18px 20px;display:grid;gap:8px;justify-items:center;text-align:center;border:0;cursor:pointer;color:inherit;transition:background .2s}
+.sign:hover{background:var(--surface-2)}
+.sign .sig{width:66px;height:66px;transition:transform .5s cubic-bezier(.3,1.4,.5,1),filter .3s}
+.sign:hover .sig{transform:rotate(-6deg) scale(1.06);filter:drop-shadow(0 0 14px var(--gold-glow))}
+.sign h3{font-size:21px;line-height:1.05}
+.sign p{margin:0;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.sign small{font:500 9.5px var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.marks{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px 26px;border:1px solid var(--line);background:var(--surface);padding:20px 22px}
+.marks .mk{display:grid;grid-template-columns:34px minmax(0,1fr);gap:12px;align-items:start}
+.marks .mk .sig{width:32px;height:32px}
+.marks .mk b{display:block;font:500 10.5px/1.5 var(--font-mono);letter-spacing:.14em;text-transform:uppercase}
+.marks .mk span{font-size:14.5px;color:var(--ink-2);line-height:1.45}
+.marks .cap{grid-column:1/-1;font-size:15px;color:var(--ink-2);margin:0;max-width:80ch}
+
+/* folios of the fonds */
+.domains{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.domain{background:var(--surface);border:1px solid var(--line);padding:18px 20px 18px;display:grid;gap:12px;align-content:start;position:relative;overflow:hidden}
+.domain::before{content:attr(data-roman);position:absolute;right:14px;bottom:-8px;font:500 64px/1 var(--font-display);color:var(--line-2);pointer-events:none}
+.domain header{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;position:relative}
+.domain header .sig{width:42px;height:42px;color:var(--fam)}
+.domain h3{font-size:24px;line-height:1.02}
+.domain .count{font:500 10px var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.dbar{display:flex;height:4px;overflow:hidden;gap:2px}
+.dbar i{display:block;height:100%}
+.dcap{font:500 10px var(--font-mono);letter-spacing:.08em;color:var(--mute);margin-top:-6px}
+.domain ul{list-style:none;margin:0;padding:0;display:grid;min-width:0;border-top:1px solid var(--line-2)}
+.domain li{min-width:0;border-bottom:1px solid var(--line-2)}
+.domain li button{background:none;border:0;padding:6px 0;text-align:left;cursor:pointer;font-size:15.5px;color:var(--ink-2);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.domain li button:hover{color:var(--gold)}
+.domain .all{justify-self:start;font:500 10.5px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;background:none;border:0;padding:0;color:var(--gold);cursor:pointer}
+
+.pathbox{background:var(--surface);border:1px solid var(--line);padding:24px;display:grid;gap:18px}
+.path-form{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto;gap:10px;align-items:center}
+.path-form input{height:46px;border:1px solid var(--line);border-radius:2px;background:var(--bg-2);padding:0 14px;font-size:16.5px;min-width:0}
+.path-form input:focus{outline:none;border-color:var(--gold)}
+.path-form .arrow{color:var(--gold);font-size:20px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px 6px;min-height:40px}
+.chain .step{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:2px;padding:7px 12px;background:var(--bg-2);cursor:pointer;font-size:15.5px}
+.chain .step:hover{border-color:var(--gold)}
+.chain .step .sig{width:15px;height:15px}
+.chain .via{font:500 10px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.chain .hint{color:var(--mute);font-style:italic}
+.examples{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font:500 10.5px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.examples .chip{font:400 14px var(--font-body);letter-spacing:0;text-transform:none}
+
+.stats{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);padding:20px 22px;display:grid;gap:12px;min-width:0;align-content:start}
+.panel h3{font-size:24px}
+.panel .sub{font-size:14.5px;color:var(--mute);margin:-6px 0 0}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:13px;padding:7px 10px;white-space:nowrap;transform:translate(-50%,-110%);z-index:5}
+.statbar{display:flex;height:10px;overflow:hidden;gap:2px}
+.statbar i{display:block;height:100%}
+.statlist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.statlist li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;font-size:15px}
+.statlist button{all:unset;cursor:pointer;display:contents}
+.statlist b{font:500 13px var(--font-mono)}
+
+.register-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.register-tools input,.register-tools select{height:40px;border:1px solid var(--line);border-radius:2px;background:var(--surface);padding:0 12px;font-size:15px}
+.register-tools input{flex:1 1 220px;min-width:0}
+.register{background:var(--surface);border:1px solid var(--line)}
+.row{display:grid;grid-template-columns:124px 18px minmax(0,2.2fr) minmax(0,1.1fr) minmax(0,1fr) 138px;gap:14px;align-items:center;padding:11px 18px;border-bottom:1px solid var(--line-2);cursor:pointer;text-align:left;width:100%;background:none;border-left:0;border-right:0;border-top:0;font-size:15px}
+.row:hover{background:var(--surface-2)}
+.row .no{font:500 10px var(--font-mono);letter-spacing:.06em;color:var(--mute);white-space:nowrap}
+.row .sig{width:16px;height:16px}
+.row .t{min-width:0;font-weight:500}
+.row .t small{display:block;font-weight:400;color:var(--mute);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .c{color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.row-head{cursor:default;font:500 10px var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--gold);background:var(--bg-2)}
+.row-head:hover{background:var(--bg-2)}
+.more{justify-self:center}
+.empty-state{padding:28px;text-align:center;color:var(--mute)}
+
+.foot{padding-block:56px 44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:26px;font-size:15px;color:var(--ink-2);border-top:1px solid var(--line);margin-top:72px}
+.foot h3{font-size:22px;color:var(--ink);margin-bottom:8px}
+.foot p{margin:0}
+.foot dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:7px 10px;margin:0;align-items:center}
+.foot dd{margin:0}
+.colophon{grid-column:1/-1;text-align:center;font:500 10px/1.8 var(--font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+
+/* ---------- the Eye ---------- */
+.rail{position:fixed;top:0;bottom:0;right:0;width:calc(var(--rail) + env(safe-area-inset-right,0px));padding-right:env(safe-area-inset-right,0px);z-index:40;pointer-events:none;border-left:1px solid var(--line);
+  background:repeating-linear-gradient(to bottom,transparent 0 19px,var(--gold-2) 19px 20px) right 0 top 0/7px 100% no-repeat,
+  repeating-linear-gradient(to bottom,transparent 0 99px,var(--gold) 99px 100px) right 0 top 0/14px 100% no-repeat,var(--bg)}
+.rail .pct{position:absolute;left:4px;font:500 9px var(--font-mono);letter-spacing:.08em;color:var(--gold);writing-mode:vertical-rl;transform:rotate(180deg)}
+.eye{position:absolute;left:50%;top:0;width:54px;margin-left:-27px;pointer-events:auto;cursor:pointer;background:none;border:0;padding:0;will-change:transform}
+.eye svg{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 0 10px var(--gold-glow))}
+.eye .body{transition:transform .35s cubic-bezier(.5,1.6,.5,1);transform-box:fill-box;transform-origin:50% 50%}
+.eye.down .body{transform:rotate(180deg)}
+.eye.walk .legL{animation:legL .18s ease-in-out infinite alternate}
+.eye.walk .legR{animation:legR .18s ease-in-out infinite alternate}
+.eye.walk .alt{animation-direction:alternate-reverse}
+@keyframes legL{from{transform:rotate(-14deg)}to{transform:rotate(12deg)}}
+@keyframes legR{from{transform:rotate(14deg)}to{transform:rotate(-12deg)}}
+@media (prefers-reduced-motion: reduce){.eye.walk .legL,.eye.walk .legR{animation:none}.sign .sig{transition:none}}
+
+/* ---------- responsive ---------- */
+@media (max-width:1100px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .seal-box{width:min(100%,520px);grid-row:1}
+  .explorer{grid-template-columns:minmax(0,1fr);height:auto}
+  .stage{height:min(72vh,640px);border-right:0;border-bottom:1px solid var(--line)}
+  .desk{overflow:visible}
+  .stats{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:760px){
+  :root{--rail:26px}
+  body{font-size:16px}
+  .top .wrap{grid-template-columns:auto auto;gap:10px}
+  .search{grid-column:1 / -1;grid-row:2;max-width:none}
+  .top-meta .counts{display:none}
+  .brand span{display:none}
+  .hero{padding-block:8px 20px;gap:4px}
+  .seal-box{width:min(100%,380px)}
+  .ledger{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ledger div{margin-right:0;padding-right:10px;border-right:0}
+  .ledger dd{font-size:26px}
+  .path-form{grid-template-columns:minmax(0,1fr)}
+  .path-form .arrow{display:none}
+  .row{grid-template-columns:18px minmax(0,1fr) auto;padding:12px 14px}
+  .row .no,.row .c.hide-sm{display:none}
+  .row-head{display:none}
+  .entry{padding:18px 18px 24px}
+  .wax{width:50px;height:50px;top:52px;right:16px}
+  .wax .sig{width:22px;height:22px}
+  .entry .head{padding-right:56px}
+  .eye{width:36px;margin-left:-18px}
+  .legend .note,.sphere-hint{display:none}
+  .search kbd{display:none}
+  .signs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sign{padding:18px 10px}
+  .sign .sig{width:52px;height:52px}
+  .section{padding-block:56px 4px}
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="ARCHIVUM — в начало"><i class="sig" data-sig="seal"></i><div><b>ARCHIVUM</b><span>опись тайного знания</span></div></a>
+    <div class="search" role="search">
+      <i class="sig" data-sig="lens"></i>
+      <input id="q" type="search" placeholder="Найти в описи: Атлантида, Баал, MKUltra, Шаданакар…" autocomplete="off" aria-label="Поиск по описи" aria-controls="results">
+      <kbd>/</kbd>
+      <div class="results" id="results" role="listbox" hidden></div>
+    </div>
+    <div class="top-meta">
+      <span class="counts"><b class="num" id="m-nodes">—</b> дел · <b class="num" id="m-edges">—</b> связей</span>
+      <button class="icon-btn" id="theme" aria-label="Сменить тему: тёмный архив или пергамент" title="Тёмный архив / пергамент">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M13.5 9.5A5.5 5.5 0 0 1 6.5 2.5a5.5 5.5 0 1 0 7 7z"/></svg>
+      </button>
+    </div>
+  </div>
+  <nav class="subnav" aria-label="Разделы страницы"><div class="wrap">
+    <a href="#explorer">Карта</a><a href="#symbols">Знаки</a><a href="#sections">Фонды<b id="n-dom"></b></a><a href="#paths">Цепи</a><a href="#stats">Хроника</a><a href="#register">Опись<b id="n-reg"></b></a>
+  </div></nav>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero" aria-label="О проекте">
+      <div>
+        <div class="eyebrow">Опись тайного знания · <span id="m-date"></span></div>
+        <h1>Во что верили, что скрывали и что <em>нашли</em></h1>
+        <p class="lede">Теории заговора, эзотерика, мифы, священные тексты и находки археологов, сведённые в одну карту связей. Каждому делу присвоен статус по научному консенсусу и, где возможно, указан первоисточник.</p>
+        <dl class="ledger" id="ledger"></dl>
+        <div class="starts">
+          <div class="eyebrow">С чего начать</div>
+          <div class="start-row" id="starts"></div>
+          <div class="start-row"><button class="btn" id="random">Вытянуть случайное дело</button><a class="btn" href="#paths">Как связаны две идеи?</a></div>
+        </div>
+      </div>
+      <div class="seal-box">
+        <canvas id="seal" aria-label="Печать архива: армиллярная сфера с пирамидой и Оком. Знаки тринадцати фондов вращаются по кругу; нажмите на знак, чтобы открыть фонд."></canvas>
+        <div class="seal-cap" id="seal-cap">Эклиптика 23°26′ · пирамида в 13 рядов · <b>13 фондов</b></div>
+      </div>
+    </section>
+
+    <section class="explorer framed" id="explorer" aria-label="Карта и досье">
+      <div class="stage" id="stage">
+        <canvas id="graph" aria-label="Карта связей. Выберите узел, чтобы прочитать досье."></canvas>
+        <div class="stage-top">
+          <div class="seg" role="group" aria-label="Вид карты">
+            <button id="v-focus" aria-pressed="true" title="Одна идея и все её связи">Фокус</button>
+            <button id="v-sphere" aria-pressed="false" title="Вся база на вращающейся небесной сфере">Сфера</button>
+            <button id="v-net" aria-pressed="false" title="Вся база кластерами по фондам">Сеть</button>
+            <button id="v-ring" aria-pressed="false" title="Все узлы по кругу, связи — хордами">Кольцо</button>
+          </div>
+          <div class="zoom">
+            <button class="icon-btn" id="z-in" aria-label="Приблизить">+</button>
+            <button class="icon-btn" id="z-out" aria-label="Отдалить">−</button>
+            <button class="icon-btn" id="z-fit" aria-label="Показать всё" title="Показать всё"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M2 6V2h4M14 6V2h-4M2 10v4h4M14 10v4h-4"/></svg></button>
+          </div>
+          <nav class="crumbs" id="crumbs" aria-label="Пройденный путь" hidden></nav>
+        </div>
+        <div class="sphere-hint" id="sphere-hint" hidden>Тяните, чтобы вращать сферу</div>
+        <div class="legend" id="legend" aria-label="Семейства фондов"></div>
+      </div>
+      <aside class="desk" id="desk" aria-live="polite"></aside>
+    </section>
+
+    <section class="section" id="symbols" aria-labelledby="h-symbols">
+      <div class="section-head">
+        <div class="eyebrow">Словарь знаков</div>
+        <h2 id="h-symbols">Знаки и что они значили</h2>
+        <div class="rule"><i class="sig" data-sig="eye"></i></div>
+        <p>Символы, которыми веками метили тайное. Нажмите на знак, чтобы открыть его дело: происхождение, кто его использовал и как менялось значение.</p>
+      </div>
+      <div class="signs" id="signs"></div>
+      <div class="marks" id="marks"></div>
+    </section>
+
+    <section class="section" id="sections" aria-labelledby="h-sections">
+      <div class="section-head">
+        <div class="eyebrow">Фонды архива</div>
+        <h2 id="h-sections">Тринадцать фондов</h2>
+        <div class="rule"><i class="sig" data-sig="compass"></i></div>
+        <p>У каждого фонда свой знак. Под названием — самые связанные дела; полоса показывает, сколько в фонде доказанного, спорного и опровергнутого.</p>
+      </div>
+      <div class="domains" id="domains"></div>
+    </section>
+
+    <section class="section" id="paths" aria-labelledby="h-paths">
+      <div class="section-head">
+        <div class="eyebrow">Инструмент</div>
+        <h2 id="h-paths">Как связаны две идеи?</h2>
+        <div class="rule"><i class="sig" data-sig="ouroboros"></i></div>
+        <p>Опись найдёт кратчайшую цепь связей между любыми двумя делами и покажет, через что они соприкасаются.</p>
+      </div>
+      <div class="pathbox framed">
+        <form class="path-form" id="path-form">
+          <input id="pa" list="all-titles" placeholder="Откуда: Масонство" aria-label="Первая идея">
+          <span class="arrow" aria-hidden="true">⟶</span>
+          <input id="pb" list="all-titles" placeholder="Куда: Нибиру" aria-label="Вторая идея">
+          <button class="btn primary" type="submit">Найти цепь</button>
+        </form>
+        <datalist id="all-titles"></datalist>
+        <div class="chain" id="chain"><span class="hint">Введите две идеи или возьмите пример ниже.</span></div>
+        <div class="examples" id="examples">Примеры:</div>
+      </div>
+    </section>
+
+    <section class="section" id="stats" aria-labelledby="h-stats">
+      <div class="section-head">
+        <div class="eyebrow">Хроника</div>
+        <h2 id="h-stats">Что хранится в архиве</h2>
+        <div class="rule"><i class="sig" data-sig="hourglass"></i></div>
+      </div>
+      <div class="stats">
+        <article class="panel">
+          <h3>По эпохам</h3>
+          <p class="sub">Сколько дел относится к каждой эпохе. Красная часть столбца — опровергнутое и подделки. Нажмите на столбец, чтобы открыть дела эпохи.</p>
+          <div class="chart" id="timeline"></div>
+        </article>
+        <article class="panel">
+          <h3>Статусы</h3>
+          <p class="sub">Оценка по научному и историческому консенсусу.</p>
+          <div class="statbar" id="statbar" aria-hidden="true"></div>
+          <ul class="statlist" id="statlist"></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="register" aria-labelledby="h-register">
+      <div class="section-head">
+        <div class="eyebrow">Опись</div>
+        <h2 id="h-register">Все дела архива</h2>
+        <div class="rule"><i class="sig" data-sig="book"></i></div>
+        <p class="num" id="rcount"></p>
+      </div>
+      <div class="register-tools">
+        <input id="rq" type="search" placeholder="Фильтр по названию, тегам, описанию" aria-label="Фильтр описи">
+        <select id="rd" aria-label="Фонд"><option value="">Все фонды</option></select>
+        <select id="rs" aria-label="Статус"><option value="">Все статусы</option></select>
+        <select id="re" aria-label="Эпоха"><option value="">Все эпохи</option></select>
+        <select id="ro" aria-label="Сортировка"><option value="deg">Сначала связанные</option><option value="alpha">По алфавиту</option><option value="era">По времени</option></select>
+      </div>
+      <div class="register" id="rlist" role="list"></div>
+      <button class="btn more" id="rmore" hidden>Показать ещё</button>
+    </section>
+  </div>
+
+  <footer class="wrap">
+    <div class="foot">
+      <div><h3>Статусы</h3><dl id="foot-status"></dl></div>
+      <div><h3>Связи</h3><p>«Опирается на» и «Повлияло на» — одна идея выросла из другой. «Дополняет» — развивает или продолжает. «Пересекается» — общий мотив, символ или персонаж. «Опровергает» — свидетельство против теории.</p></div>
+      <div><h3>Об архиве</h3><p>Опись пополняется партиями. Шифр дела «Ф. IV · Д. 0123» означает фонд и номер дела. Нашли ошибку или хотите предложить тему — напишите в <a href="https://github.com/monxley/archivum/issues">Issues на GitHub</a>.</p></div>
+      <p class="colophon">ARCHIVUM · опись тайного знания · составлено по первоисточникам</p>
+    </div>
+  </footer>
+</main>
+
+<div class="rail">
+  <span class="pct num" id="pct">000</span>
+  <button class="eye" id="eye" title="Наверх" aria-label="Наверх"></button>
+</div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
