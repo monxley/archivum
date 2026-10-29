@@ -176,7 +176,7 @@
     const cx = ns.reduce((s, n) => s + n.x, 0) / (ns.length || 1), cy = ns.reduce((s, n) => s + n.y, 0) / (ns.length || 1);
     const ds = ns.map((n) => Math.hypot(n.x - cx, n.y - cy)).sort((a, b) => a - b);
     const r = ds[Math.floor(ds.length * 0.85)] || 0, l = Math.hypot(cx, cy) || 1;
-    return { d, x: cx + (cx / l) * (r + 50), y: cy + (cy / l) * (r + 50) };
+    return { d, cx, cy, r, x: cx + (cx / l) * (r + 40), y: cy + (cy / l) * (r + 40) };
   });
   const ringOrder = [...nodes].sort((a, b) => famOf[a.d] - famOf[b.d] || domKeys.indexOf(a.d) - domKeys.indexOf(b.d) || (a.yr ?? 0) - (b.yr ?? 0));
   const RR = 760;
@@ -284,9 +284,9 @@
     if (!vis.length || !W) return;
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
     for (const n of vis) { x0 = Math.min(x0, n.x); y0 = Math.min(y0, n.y); x1 = Math.max(x1, n.x); y1 = Math.max(y1, n.y); }
-    const pad = mode === "ring" ? 170 : 70;
-    const k = clampK(Math.min(W / (x1 - x0 + pad * 2), (H - 100) / (y1 - y0 + pad * 2), 3));
-    const x = W / 2 - ((x0 + x1) / 2) * k, y = H / 2 + 10 - ((y0 + y1) / 2) * k;
+    const pad = mode === "ring" ? 170 : W < 640 ? 150 : 110, leg = legendPad();
+    const k = clampK(Math.min(W / (x1 - x0 + pad * 2), (H - 90 - leg) / (y1 - y0 + pad * 2), 3));
+    const x = W / 2 - ((x0 + x1) / 2) * k, y = (H - leg) / 2 + 30 - ((y0 + y1) / 2) * k;
     if (animate) animateT(x, y, k); else setT(x, y, k);
   }
   function fit(animate) { if (mode === "focus") fitFocus(animate); else if (mode === "sphere") { sph.k = 1; draw(); } else fitAll(animate); }
@@ -296,14 +296,17 @@
     if (m === mode && m !== "focus") return;
     const prev = mode; mode = m;
     for (const [id, v] of MODES) $(id).setAttribute("aria-pressed", mode === v);
-    $("sphere-hint").hidden = mode !== "sphere";
+    $("sphere-hint").hidden = mode !== "sphere" && mode !== "net";
+    $("sphere-hint").textContent = mode === "net" ? "Колесо — масштаб · наведите на дело, чтобы увидеть связи · клик по фонду — приблизить" : "Тяните, чтобы вращать сферу";
+    $("sphere-hint").classList.toggle("bottom", mode === "net");
+    $("sphere-hint").style.bottom = mode === "net" ? $("legend").offsetHeight + 22 + "px" : "";
     try { localStorage.setItem("archivum-mode", mode); } catch (_) {}
     renderCrumbs();
     if (m === "focus") { showFocus(current || byDeg[0], prev === "focus"); return; }
     fSet = null;
     if (m === "sphere") { sph.idle = 0; if (current) faceNode(current, prev === "sphere"); spin(); draw(); return; }
     const targets = new Map(nodes.map((n) => [n, m === "ring" ? [n.rx, n.ry] : [n.nx, n.ny]]));
-    moveNodes(targets, 850, () => { fitAll(true); if (current) centerOn(current, true); });
+    moveNodes(targets, 850, () => fitAll(true));
   }
   function showFocus(c, wasFocus) {
     const target = layoutFocus(c);
@@ -399,23 +402,50 @@
     ctx.fillStyle = C.ink; ctx.fillText(c.t, 0, cy);
     if (!c.adj.length) { ctx.font = `italic 400 ${14 / k}px Alegreya, serif`; ctx.fillStyle = C.mute; ctx.fillText("Связей пока нет", 0, cr + 30 / k); }
   }
-  const isHot = (e) => (pathEdges ? pathEdges.has(e) : current && (e.source === current || e.target === current));
-  const lit = (n) => visibleFam(n) && (pathSet ? pathSet.has(n) : !current || n === current || current.adj.some((a) => a.n === n));
+  // «в фокусе» — выбранное дело; если ничего не выбрано, в «Сети» — дело под курсором (предпросмотр соседей)
+  const focusNode = () => current || (mode === "net" && hover && !pathSet ? hover : null);
+  const isHot = (e) => { const f = focusNode(); return pathEdges ? pathEdges.has(e) : f && (e.source === f || e.target === f); };
+  const lit = (n) => { const f = focusNode(); return visibleFam(n) && (pathSet ? pathSet.has(n) : !f || n === f || f.adj.some((a) => a.n === n)); };
+  const hexA = (hex, a) => { const h = hex.replace("#", ""); const v = parseInt(h.length === 3 ? h.replace(/./g, "$&$&") : h, 16); return `rgba(${(v >> 16) & 255},${(v >> 8) & 255},${v & 255},${a})`; };
   function renderAll() {
     const k = T.k, st = kStyle(k), ring = mode === "ring";
-    const focus = !!(current || pathSet);
+    const fN = focusNode(), focus = !!(fN || pathSet);
     const curve = (e) => {
       ctx.moveTo(e.source.x, e.source.y);
       if (ring) ctx.quadraticCurveTo((e.source.x + e.target.x) * 0.1, (e.source.y + e.target.y) * 0.1, e.target.x, e.target.y);
       else ctx.lineTo(e.target.x, e.target.y);
     };
     if (ring) { ctx.strokeStyle = C.gold; ctx.globalAlpha = 0.25; ctx.lineWidth = 1 / k; ctx.beginPath(); ctx.arc(0, 0, RR * 1.0, 0, Math.PI * 2); ctx.stroke(); }
+    if (!ring) {
+      // территории фондов: мягкое пятно цвета семейства под каждым «материком»
+      for (const c of domCentre) {
+        if (!activeFam.has(famOf[c.d]) || !c.r) continue;
+        const col = C.fam[famOf[c.d]], g = ctx.createRadialGradient(c.cx, c.cy, 0, c.cx, c.cy, c.r * 1.35);
+        g.addColorStop(0, hexA(col, focus ? 0.05 : 0.13)); g.addColorStop(0.7, hexA(col, focus ? 0.025 : 0.06)); g.addColorStop(1, hexA(col, 0));
+        ctx.globalAlpha = 1; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(c.cx, c.cy, c.r * 1.35, 0, Math.PI * 2); ctx.fill();
+      }
+    }
     ctx.lineWidth = 0.7 / k;
-    for (const kind of ["comp", "over", "src", "anti"]) {
-      ctx.beginPath();
-      for (const e of edges) if (e.kind === kind && visibleFam(e.source) && visibleFam(e.target) && !isHot(e)) curve(e);
-      ctx.strokeStyle = st[kind][0]; ctx.setLineDash(st[kind][1]);
-      ctx.globalAlpha = focus ? 0.05 : ring ? 0.16 : 0.22; ctx.stroke();
+    if (ring) {
+      for (const kind of ["comp", "over", "src", "anti"]) {
+        ctx.beginPath();
+        for (const e of edges) if (e.kind === kind && visibleFam(e.source) && visibleFam(e.target) && !isHot(e)) curve(e);
+        ctx.strokeStyle = st[kind][0]; ctx.setLineDash(st[kind][1]);
+        ctx.globalAlpha = focus ? 0.05 : 0.16; ctx.stroke();
+      }
+    } else {
+      // связи внутри фонда — цветом семейства, «мосты» между фондами — золотом, опровержения — красным пунктиром
+      const famPaths = FAMS.map(() => new Path2D()), bridge = new Path2D(), anti = new Path2D();
+      for (const e of edges) {
+        const a = e.source, b = e.target;
+        if (!visibleFam(a) || !visibleFam(b) || isHot(e)) continue;
+        const p = e.kind === "anti" ? anti : a.d === b.d ? famPaths[famOf[a.d]] : bridge;
+        p.moveTo(a.x, a.y); p.lineTo(b.x, b.y);
+      }
+      const dim = focus ? 0.25 : 1;
+      famPaths.forEach((p, i) => { ctx.strokeStyle = C.fam[i]; ctx.globalAlpha = 0.2 * dim; ctx.stroke(p); });
+      ctx.strokeStyle = C.gold; ctx.globalAlpha = 0.08 * dim; ctx.stroke(bridge);
+      ctx.strokeStyle = C.bad; ctx.setLineDash([5 / k, 3 / k]); ctx.globalAlpha = 0.3 * dim; ctx.stroke(anti); ctx.setLineDash([]);
     }
     if (focus) {
       ctx.lineWidth = 1.6 / k;
@@ -430,7 +460,7 @@
     for (const n of nodes) {
       if (!visibleFam(n)) continue;
       const on = lit(n), r = rad(n);
-      ctx.globalAlpha = on ? 1 : 0.12;
+      ctx.globalAlpha = on ? 1 : 0.14;
       ctx.fillStyle = C.fam[famOf[n.d]]; nodeShape(n, r); ctx.fill();
       if (n === current || n === hover) { ctx.globalAlpha = 1; ctx.strokeStyle = C.gold; ctx.lineWidth = 2 / k; ctx.beginPath(); ctx.arc(n.x, n.y, r + 4 / k, 0, Math.PI * 2); ctx.stroke(); }
     }
@@ -447,24 +477,53 @@
         ctx.fillText(n.t, (rad(n) + 4 / k) * (flip ? -1 : 1), 0);
         ctx.restore();
       }
-    } else {
-      for (const n of nodes) {
-        const on = lit(n);
-        const show = n === hover || n === current || (focus && on) || (!focus && visibleFam(n) && n.deg * k >= 10);
-        if (!show) continue;
-        ctx.globalAlpha = on ? 1 : 0.35;
-        label(n.t, n.x + rad(n) + 4 / k, n.y, k, 13, n === current ? 700 : 400, n === current ? C.gold : C.ink);
-      }
+      return;
+    }
+    // подписи: сначала названия фондов, затем дела по числу связей — без наложений
+    const placed = [];
+    const free = (x0, y0, x1, y1) => { for (const q of placed) if (x0 < q[2] && x1 > q[0] && y0 < q[3] && y1 > q[1]) return false; return true; };
+    const domA = focus ? 0.22 : Math.max(0, Math.min(0.85, 0.85 - (k - 1.1) * 0.9));
+    if (domA > 0.02) {
       for (const c of domCentre) {
         if (!activeFam.has(famOf[c.d])) continue;
-        ctx.globalAlpha = focus ? 0.2 : 0.55;
-        const fs = Math.max(14, 18 * k) / k;
-        drawSig(ctx, dsig(c.d), c.x, c.y - fs * 1.3, fs * 1.6, C.gold, 1.3 / k);
-        ctx.font = `500 ${fs}px "Cormorant Unicase", Georgia, serif`; ctx.textAlign = "center"; ctx.fillStyle = C.ink;
-        ctx.fillText(DOMS[c.d], c.x, c.y);
+        const fs = W < 640 ? 12.5 : 16, sx = c.x * k + T.x, sy = c.y * k + T.y;
+        ctx.font = `500 ${fs / k}px "Cormorant Unicase", Georgia, serif`;
+        const w = ctx.measureText(DOMS[c.d]).width * k;
+        placed.push([sx - w / 2 - 4, sy - fs * 2.6, sx + w / 2 + 4, sy + fs * 0.7]);
+        c.hit = [sx - w / 2 - 6, sy - fs * 2.8, sx + w / 2 + 6, sy + fs * 0.9];
+        ctx.globalAlpha = domA;
+        drawSig(ctx, dsig(c.d), c.x, c.y - (fs * 1.45) / k, (fs * 1.5) / k, C.fam[famOf[c.d]], 1.4 / k);
+        ctx.textAlign = "center"; ctx.lineJoin = "round"; ctx.strokeStyle = C.bg2; ctx.lineWidth = 5 / k; ctx.strokeText(DOMS[c.d], c.x, c.y);
+        ctx.fillStyle = C.ink; ctx.fillText(DOMS[c.d], c.x, c.y);
       }
+    } else domCentre.forEach((c) => (c.hit = null));
+    const pool = (focus ? nodes.filter((n) => lit(n)) : nodes.filter(visibleFam)).sort((a, b) => (b === fN) - (a === fN) || (b === current) - (a === current) || b.deg - a.deg);
+    const maxL = focus ? 70 : Math.round(Math.min(220, 18 + 46 * k * k));
+    let shown = 0;
+    ctx.font = `400 ${12.5 / k}px Alegreya, Georgia, serif`;
+    for (const n of pool) {
+      if (shown >= maxL) break;
+      const sx = n.x * k + T.x, sy = n.y * k + T.y;
+      if (sx < -40 || sy < -20 || sx > W + 40 || sy > H + 20) continue;
+      const must = n === current || n === hover || n === fN;
+      const t = n.t.length > 34 ? n.t.slice(0, 33) + "…" : n.t;
+      const w = ctx.measureText(t).width * k, x0 = sx + rad(n) * k + 4;
+      if (!must && !free(x0 - 2, sy - 8, x0 + w + 2, sy + 8)) continue;
+      placed.push([x0 - 2, sy - 8, x0 + w + 2, sy + 8]); shown++;
+      ctx.globalAlpha = lit(n) ? 1 : 0.4;
+      label(t, n.x + rad(n) + 4 / k, n.y, k, 12.5, must ? 700 : 400, must ? C.gold : C.ink);
     }
   }
+  function fitNodes(list, animate = true, kmax = 2.4) {
+    if (!list.length || !W) return;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const n of list) { x0 = Math.min(x0, n.x); y0 = Math.min(y0, n.y); x1 = Math.max(x1, n.x); y1 = Math.max(y1, n.y); }
+    const leg = legendPad(), pad = 90;
+    const k = clampK(Math.min(W / (x1 - x0 + pad * 2), (H - 90 - leg) / (y1 - y0 + pad * 2), kmax));
+    const x = W / 2 - ((x0 + x1) / 2) * k, y = (H - leg) / 2 + 30 - ((y0 + y1) / 2) * k;
+    if (animate) animateT(x, y, k, 650); else setT(x, y, k);
+  }
+  const legendPad = () => { const l = $("legend"); return l ? Math.min(H * 0.3, l.offsetHeight + 16) : 0; };
 
   /* «Сфера»: вся опись на вращающемся небесном шаре */
   const sph = { yaw: 0.7, pitch: -0.45, k: 1, idle: 0, anim: 0 };
@@ -617,7 +676,10 @@
     if (!prev) {
       if (e.pointerType === "touch") return;
       const n = nodeAt(e.clientX - r.left, e.clientY - r.top);
-      if (n !== hover) { hover = n; canvas.style.cursor = n ? "pointer" : ""; draw(); }
+      if (n !== hover) { hover = n; draw(); }
+      const px = e.clientX - r.left, py = e.clientY - r.top;
+      const overDom = mode === "net" && !n && domCentre.some((c) => c.hit && px >= c.hit[0] && px <= c.hit[2] && py >= c.hit[1] && py <= c.hit[3]);
+      canvas.style.cursor = n || overDom ? "pointer" : "";
       return;
     }
     if (ptrs.size === 2 && pinch) {
@@ -646,7 +708,13 @@
     if (dragged) return;
     const r = canvas.getBoundingClientRect();
     const n = nodeAt(e.clientX - r.left, e.clientY - r.top);
-    if (n) choose(n); else if (mode !== "focus" && (current || pathSet)) { pathSet = pathEdges = null; current = null; renderDesk(); draw(); }
+    if (n) { choose(n); return; }
+    if (mode === "net") {
+      const px = e.clientX - r.left, py = e.clientY - r.top;
+      const c = domCentre.find((c) => c.hit && px >= c.hit[0] && px <= c.hit[2] && py >= c.hit[1] && py <= c.hit[3]);
+      if (c) { fitNodes(nodes.filter((m) => m.d === c.d), true, 3); return; }
+    }
+    if (mode !== "focus" && (current || pathSet)) { pathSet = pathEdges = null; current = null; renderDesk(); draw(); }
   });
   $("z-in").onclick = () => zoomAt(W / 2, H / 2, T.k * 1.5);
   $("z-out").onclick = () => zoomAt(W / 2, H / 2, T.k / 1.5);
@@ -654,9 +722,10 @@
   for (const [id, m] of MODES) $(id).onclick = () => setMode(m);
 
   /* легенда семейств */
-  $("legend").innerHTML = FAMS.map((f, i) => `<button class="chip" data-f="${i}" aria-pressed="true"><i class="dot" style="background:var(--f${i + 1})"></i>${esc(f.name)}</button>`).join("") +
+  $("legend").innerHTML = `<button class="chip legend-toggle" id="legend-toggle" aria-expanded="false">Фильтр семейств</button>` + FAMS.map((f, i) => `<button class="chip" data-f="${i}" aria-pressed="true"><i class="dot" style="background:var(--f${i + 1})"></i>${esc(f.name)}</button>`).join("") +
     `<span class="note">■ квадрат — опровергнуто или подделка</span>`;
   $("legend").addEventListener("click", (e) => {
+    if (e.target.closest("#legend-toggle")) { const L = $("legend"), o = !L.classList.contains("open"); L.classList.toggle("open", o); $("legend-toggle").setAttribute("aria-expanded", o); return; }
     const b = e.target.closest("button[data-f]"); if (!b) return;
     const f = +b.dataset.f;
     if (activeFam.size === FAMS.length) { activeFam.clear(); activeFam.add(f); }
@@ -673,7 +742,7 @@
     if (!opts.fromHistory) { history = history.filter((x) => x !== n); history.push(n); if (history.length > 10) history.shift(); }
     renderCrumbs();
     renderDesk();
-    if (mode === "focus") showFocus(n, true); else if (mode === "sphere") faceNode(n); else { draw(); centerOn(n); }
+    if (mode === "focus") showFocus(n, true); else if (mode === "sphere") faceNode(n); else if (mode === "net") { draw(); fitNodes([n, ...n.adj.map((a) => a.n).filter(visibleFam)]); } else { draw(); centerOn(n); }
     try { window.history.replaceState(null, "", "#" + n.id); } catch (_) {}
     if (opts.scroll) $("explorer").scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   }

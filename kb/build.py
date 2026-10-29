@@ -92,48 +92,67 @@ def build_edges(nodes):
     return list(edges.values()), dangling
 
 
-def layout(nodes, edges, iterations=320, seed=7):
-    """Раскладка «сеть», посчитанная заранее (аналог d3-force): кластеры по доменам,
-    отталкивание узлов, пружины по связям. Сайту остаётся только отрисовать координаты."""
+# Порядок «материков» на карте «Сеть»: соседние семейства стоят рядом, люди — в центре
+RING_ORDER = ["scripture", "levant", "ancient", "archaeology", "myth", "andreev", "esoteric",
+              "societies", "conspiracy", "ufo", "anomaly", "fringe"]
+CENTRE_DOMAIN = "persons"
+
+
+def layout(nodes, edges, iterations=300, seed=7):
+    """Раскладка «сеть», посчитанная заранее: каждый фонд — «материк» на кольце
+    (Персоналии — в центре), внутри — отталкивание узлов и пружины по связям,
+    между фондами — слабые «мосты». Сайту остаётся только отрисовать координаты."""
     import math
     import numpy as np
 
     rng = np.random.default_rng(seed)
-    keys = list(DOMAINS)
     n = len(nodes)
     idx = {nd["id"]: i for i, nd in enumerate(nodes)}
-    dom = np.array([keys.index(nd["d"]) for nd in nodes])
-    r0 = 760 + 22 * math.sqrt(max(0, n - 600))
-    ang = dom / len(keys) * 2 * math.pi - math.pi / 2
-    centre = np.stack([np.cos(ang), np.sin(ang)], 1) * r0
-    pos = centre + rng.normal(0, 60, (n, 2))
+    ring = [d for d in RING_ORDER if d in DOMAINS] + [d for d in DOMAINS if d not in RING_ORDER and d != CENTRE_DOMAIN]
+    sizes = {d: sum(1 for nd in nodes if nd["d"] == d) for d in DOMAINS}
+    rad = {d: 21.0 * math.sqrt(max(1, sizes[d])) for d in DOMAINS}
+    gap = 70.0
+    circ = sum(2 * rad[d] + gap for d in ring)
+    R = max(circ / (2 * math.pi), rad.get(CENTRE_DOMAIN, 0) + max(rad[d] for d in ring) + 2 * gap)
+    anchor = {CENTRE_DOMAIN: (0.0, 0.0)}
+    a = -math.pi / 2
+    for d in ring:
+        span = (2 * rad[d] + gap) / circ * 2 * math.pi
+        mid = a + span / 2
+        anchor[d] = (R * math.cos(mid), R * math.sin(mid))
+        a += span
+    dom = [nd["d"] for nd in nodes]
+    centre = np.array([anchor[d] for d in dom], dtype=float)
+    spread = np.array([rad[d] for d in dom], dtype=float)
+    pos = centre + rng.normal(0, 1, (n, 2)) * (spread[:, None] * 0.5)
     vel = np.zeros((n, 2))
-    a_idx = np.array([idx[a] for a, b, _ in edges], dtype=int)
-    b_idx = np.array([idx[b] for a, b, _ in edges], dtype=int)
-    same = dom[a_idx] == dom[b_idx]
-    rest = np.where(same, 34.0, 120.0)
+    a_idx = np.array([idx[x] for x, y, _ in edges], dtype=int)
+    b_idx = np.array([idx[y] for x, y, _ in edges], dtype=int)
+    dom_i = np.array([list(DOMAINS).index(d) for d in dom])
+    same = dom_i[a_idx] == dom_i[b_idx]
+    rest = np.where(same, 30.0, 160.0)
+    stiff = np.where(same, 0.22, 0.012)
     deg = np.bincount(np.concatenate([a_idx, b_idx]), minlength=n).astype(float)
     bias = deg[a_idx] / np.maximum(deg[a_idx] + deg[b_idx], 1)
-    strength = 0.22
-    alpha, decay = 1.0, 1 - 0.001 ** (1 / iterations)
-    chunk = 800
+    alpha, decay = 1.0, 1 - 0.002 ** (1 / iterations)
+    chunk = 700
+    cut2 = 340.0 ** 2
     for _ in range(iterations):
-        # отталкивание (many-body), отсечка на 420
         force = np.zeros((n, 2))
         for s in range(0, n, chunk):
             d = pos[None, :, :] - pos[s:s + chunk, None, :]
             d2 = (d ** 2).sum(-1) + 1.0
-            w = np.where(d2 < 420 ** 2, -46.0 / d2, 0.0)
+            w = np.where(d2 < cut2, -40.0 / d2, 0.0)
             force[s:s + chunk] += (d * w[..., None]).sum(1)
-        vel += force * alpha
-        # пружины
+        f = max(alpha, 0.12)  # силы затухают вместе, баланс кластеров сохраняется
+        vel += force * f
         d = pos[b_idx] + vel[b_idx] - pos[a_idx] - vel[a_idx]
         l = np.sqrt((d ** 2).sum(1)) + 1e-6
-        k = ((l - rest) / l * alpha * strength)[:, None] * d
+        k = ((l - rest) / l * f * stiff)[:, None] * d
         np.add.at(vel, b_idx, -k * bias[:, None])
         np.add.at(vel, a_idx, k * (1 - bias)[:, None])
-        # притяжение к центру домена
-        vel += (centre - pos) * 0.16 * alpha
+        # постоянное притяжение к своему материку: кластеры не сливаются к концу расчёта
+        vel += (centre - pos) * 0.09 * f
         vel *= 0.6
         pos += vel
         alpha -= alpha * decay
